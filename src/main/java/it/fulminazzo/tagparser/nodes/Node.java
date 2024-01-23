@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 @Getter
@@ -166,6 +167,19 @@ public class Node {
             throw new RuntimeException(e);
         }
         return builder.toString();
+    }
+
+    public boolean equals(Node node) {
+        if (node == null) return false;
+        if (!this.tagName.equals(node.getTagName())) return false;
+        if (!Objects.equals(this.next, node.getNext())) return false;
+        return Objects.equals(this.attributes, node.getAttributes());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Node) return equals((Node) o);
+        return super.equals(o);
     }
 
     @Override
