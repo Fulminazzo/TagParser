@@ -213,6 +213,7 @@ public class Node {
         return newNode(new StringBuilder(), stream, true);
     }
 
+    //TODO: Check for attributes!
     static Node newNode(final StringBuilder buffer, InputStream stream, boolean checkNext) {
         try {
             final Map<String, String> attributes = new LinkedHashMap<>();
@@ -227,11 +228,13 @@ public class Node {
                     if (read == ' ' || read == '>') break;
                     else buffer.append((char) read);
             }
-            final String tagName = buffer.toString();
+            String tagName = buffer.toString();
             final Node node;
-            if (tagName.endsWith("/"))
-                node = new Node(tagName.substring(0, tagName.length() - 1));
-            else node = new ContainerNode(tagName);
+            boolean isContainer = true;
+            if (read == '>' && tagName.endsWith("/")) {
+                isContainer = false;
+                tagName = tagName.substring(0, tagName.length() - 1);
+            }
             buffer.setLength(0);
 
             if (read == ' ') {
@@ -247,17 +250,25 @@ public class Node {
                             buffer.setLength(0);
                         } else if (read == ' ' || read == '>') {
                             String value = buffer.toString();
+                            if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
                             if (key.isEmpty()) key = value;
                             if (value.equals(key)) value = null;
                             if (!key.isEmpty()) attributes.put(key, value);
-                            buffer.setLength(0);
                             key = "";
-                            if (read == '>') break;
+                            if (read == '>') {
+                                if (buffer.length() > 0)
+                                    isContainer = buffer.charAt(buffer.length() - 1) != '/';
+                                break;
+                            }
+                            buffer.setLength(0);
                         } else buffer.append((char) read);
                     }
-                node.setAttributes(attributes);
                 buffer.setLength(0);
             }
+
+            if (!isContainer) node = new Node(tagName);
+            else node = new ContainerNode(tagName);
+            node.setAttributes(attributes);
 
             if (node instanceof ContainerNode) {
                 ContainerNode containerNode = (ContainerNode) node;

@@ -2,7 +2,11 @@ package it.fulminazzo.tagparser.nodes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.fulminazzo.tagparser.nodes.exceptions.EndOfStreamException;
+import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
+import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
+import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,12 +15,19 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class NodeTest {
+    protected static final File RESOURCES = new File("build/resources/test");
 
     static Object[][] getTagNameTests() {
         return new Object[][]{
@@ -41,6 +52,11 @@ class NodeTest {
         return new Object[][]{
                 new Object[]{"body", new LinkedHashMap<>(), "", "<body/>"},
                 new Object[]{"body", new LinkedHashMap<>(), "", "<body></body>"},
+                new Object[]{"body", new LinkedHashMap<String, String>(){{
+                    put("key1", "value1");
+                    put("key2", "'value'\"2\"");
+                    put("key3", "value\"3\"");
+                }}, "", "<body key1=value1 key2=\"\\'value\\'\\\"2\\\"\" key3='value\"3\"'/>"},
                 new Object[]{"body", new LinkedHashMap<String, String>(){{
                     put("key1", "value1");
                     put("key2", "'value'\"2\"");
@@ -89,8 +105,60 @@ class NodeTest {
         else assertThrowsExactly(NotValidTagNameException.class, getNode);
     }
 
+    @Test
+    void testEquality() {
+        Node node1 = Node.newNode("<test key1=value1 key2=value2/>");
+        Node node2 = Node.newNode("<test key1=value1 key2=value2/>");
+        assertEquals(node2, node1);
+    }
+
+    @Test
+    void testNotEqualOptions() {
+        Node node1 = Node.newNode("<test key1=value1 key2=value2/>");
+        Node node2 = Node.newNode("<test key1=value1 key2=value3/>");
+        assertNotEquals(node2, node1);
+    }
+
+    @Test
+    void testNotEqualTags() {
+        Node node1 = Node.newNode("<test key1=value1 key2=value2/>");
+        Node node2 = Node.newNode("<test2 key1=value1 key2=value2/>");
+        assertNotEquals(node2, node1);
+    }
+
     @Nested
-    @DisplayName("Test various methods")
+    @DisplayName("Test node exceptions")
+    class NodeExceptions {
+
+        @Test
+        void testStreamError() throws IOException {
+            InputStream stream = mock(InputStream.class);
+            when(stream.read()).thenThrow(IOException.class);
+            assertThrowsExactly(NodeException.class, () -> Node.newNode(stream));
+        }
+
+        @Test
+        void testStreamEnd() throws IOException {
+            InputStream stream = mock(InputStream.class);
+            when(stream.read()).thenReturn(-1);
+            assertThrowsExactly(EndOfStreamException.class, () -> Node.newNode(stream));
+        }
+
+        @Test
+        void testNotExistingFile() {
+            assertThrowsExactly(FileDoesNotExistException.class, () ->
+                    Node.newNode(new File(RESOURCES, "not-existing.xml")));
+        }
+
+        @Test
+        void testDirectoryFile() {
+            assertThrowsExactly(FileIsDirectoryException.class, () ->
+                    Node.newNode(RESOURCES));
+        }
+    }
+
+    @Nested
+    @DisplayName("Test manipulation methods")
     class NodeMethods {
         private Node node;
 
@@ -156,7 +224,28 @@ class NodeTest {
         }
 
         @Test
-        void testAddNext() {
+        void testAddNextString() {
+            Node n = new Node("next2");
+            node.addNext("<next2/>");
+            assertEquals(n, node.getNext().getNext());
+        }
+
+        @Test
+        void testAddNextFile() {
+            Node n = new Node("next2");
+            node.addNext(new File(RESOURCES, "node.xml"));
+            assertEquals(n, node.getNext().getNext());
+        }
+
+        @Test
+        void testAddNextStream() {
+            Node n = new Node("next2");
+            node.addNext(new ByteArrayInputStream("<next2/>".getBytes()));
+            assertEquals(n, node.getNext().getNext());
+        }
+
+        @Test
+        void testAddNextNode() {
             Node n = new Node("next2");
             node.addNext(n);
             assertEquals(n, node.getNext().getNext());
@@ -182,6 +271,27 @@ class NodeTest {
             Node n = new Node("next2");
             node.addNext(n);
             node.removeNext(t -> t.getTagName().equals("next"));
+            assertEquals(n, node.getNext());
+        }
+
+        @Test
+        void testSetNextString() {
+            Node n = new Node("next2");
+            node.setNext("<next2/>");
+            assertEquals(n, node.getNext());
+        }
+
+        @Test
+        void testSetNextFile() {
+            Node n = new Node("next2");
+            node.setNext(new File(RESOURCES, "node.xml"));
+            assertEquals(n, node.getNext());
+        }
+
+        @Test
+        void testSetNextStream() {
+            Node n = new Node("next2");
+            node.setNext(new ByteArrayInputStream("<next2/>".getBytes()));
             assertEquals(n, node.getNext());
         }
 
