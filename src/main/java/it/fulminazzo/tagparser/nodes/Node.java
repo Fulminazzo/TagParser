@@ -8,20 +8,18 @@ import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import it.fulminazzo.tagparser.utils.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 @Getter
 @Setter
 public class Node {
-    static final String TAG_NAME_REGEX = "[A-Za-z][A-Za-z0-9_-]*[A-Za-z0-9]";
+    static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
     protected final String tagName;
     protected final Map<String, String> attributes;
     protected Node next;
@@ -198,8 +196,11 @@ public class Node {
     }
 
     public static Node newNode(InputStream stream) {
+        return newNode(new StringBuilder(), stream, true);
+    }
+
+    static Node newNode(final StringBuilder buffer, InputStream stream, boolean checkNext) {
         try {
-            final StringBuilder buffer = new StringBuilder();
             final Map<String, String> attributes = new LinkedHashMap<>();
 
             int read = stream.read();
@@ -216,8 +217,7 @@ public class Node {
             final Node node;
             if (tagName.endsWith("/"))
                 node = new Node(tagName.substring(0, tagName.length() - 1));
-//            else node = new ContainerNode(tagName);
-            else node = null;
+            else node = new ContainerNode(tagName);
             buffer.setLength(0);
 
             if (read == ' ') {
@@ -245,31 +245,28 @@ public class Node {
                 buffer.setLength(0);
             }
 
-//            if (node instanceof ContainerNode) {
-//                // Read contents from given stream.
-//                //TODO: TOTALLY REWORK!!!
-//                final String end = "</" + tagName + ">";
-//                while ((read = stream.read()) != -1 && !buffer.toString().endsWith(end))
-//                    buffer.append((char) read);
-//
-//                String contents = buffer.toString();
-//                if (contents.endsWith(end)) {
-//                    contents = contents.substring(0, contents.length() - end.length());
-//                    node.setClosed(true);
-//                } else node.setClosed(false);
-//
-//                if (contents.startsWith("<")) {
-//                    InputStream byteStream = new ByteArrayInputStream(contents.getBytes());
-//                    node.setChild(Node.newNode(byteStream));
-//                    buffer.setLength(0);
-//                    while ((read = byteStream.read()) != -1) buffer.append((char) read);
-//                    contents = buffer.toString();
-//                }
-//
-//                node.setContents(contents);
-//            }
+            if (node instanceof ContainerNode) {
+                ContainerNode containerNode = (ContainerNode) node;
+                // Read contents from given stream.
+                final String end = "</" + tagName + ">";
+                while (!buffer.toString().endsWith(end) && (read = stream.read()) != -1) {
+                    if (read != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
+                        buffer.setLength(buffer.length() - 1);
+                        Node n = Node.newNode(new StringBuilder().append((char) read), stream, false);
+                        containerNode.addChild(n);
+                    } else buffer.append((char) read);
+                }
 
-            if (stream.available() > 0) node.setNext(stream);
+                String text = buffer.toString();
+                if (text.endsWith(end))
+                    text = text.substring(0, text.length() - end.length());
+                else throw new NodeException(String.format("Node \"%s\" not closed. Raw text: \"%s\"", tagName, text));
+
+                containerNode.setText(text);
+            }
+
+            // Check for other content to be added.
+            if (checkNext && stream.available() > 0) node.setNext(stream);
 
             return node;
         } catch (IOException e) {

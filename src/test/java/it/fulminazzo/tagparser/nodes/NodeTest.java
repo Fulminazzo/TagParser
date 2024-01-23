@@ -37,6 +37,50 @@ class NodeTest {
         };
     }
 
+    static Object[][] getNodeTests() {
+        return new Object[][]{
+                new Object[]{"body", new LinkedHashMap<>(), "", "<body/>"},
+                new Object[]{"body", new LinkedHashMap<>(), "", "<body></body>"},
+                new Object[]{"body", new LinkedHashMap<String, String>(){{
+                    put("key1", "value1");
+                    put("key2", "'value'\"2\"");
+                    put("key3", "value\"3\"");
+                }}, "", "<body key1=value1 key2=\"\\'value\\'\\\"2\\\"\" key3='value\"3\"' ></body>"},
+                new Object[]{"body", new LinkedHashMap<>(), "Contents", "<body>Contents</body>"},
+                new Object[]{"body", new LinkedHashMap<>(), "Contents", "<body>Contents</body>"},
+                new Object[]{"body", new LinkedHashMap<>(),
+                        new Object[]{"p", new LinkedHashMap<>(), "Contents", "<p>Contents</p>"},
+                        "<body><p>Contents</p></body>"},
+                new Object[]{"body", new LinkedHashMap<>(),
+                        new Object[]{"p", new LinkedHashMap<>(), "Contents", "<p>Contents</p>"},
+                        "<body><p>Contents</p></body><body><p>Contents</p></body>"},
+        };
+    }
+
+    @ParameterizedTest
+    @MethodSource("getNodeTests")
+    void testNodes(String tagName, LinkedHashMap<String, String> attributes, Object contents, String rawText) {
+        final Node node = Node.newNode(rawText);
+        testNode(node, tagName, attributes, contents);
+        final Node next = node.getNext();
+        if (next != null) testNode(next, tagName, attributes, contents);
+    }
+
+    private void testNode(Node node, String tagName, LinkedHashMap<String, String> attributes, Object contents) {
+        assertEquals(tagName, node.getTagName());
+        assertEquals(attributes, node.getAttributes());
+        if (node instanceof ContainerNode) {
+            ContainerNode containerNode = (ContainerNode) node;
+            if (contents instanceof String) assertEquals(contents, containerNode.getText());
+            else {
+                Object[] objects = (Object[]) contents;
+                final Node child = containerNode.getChild();
+                assertEquals(objects[0], child.getTagName());
+                assertEquals(objects[1], child.getAttributes());
+            }
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("getTagNameTests")
     void testTagNameRegex(String tag, boolean valid) {
