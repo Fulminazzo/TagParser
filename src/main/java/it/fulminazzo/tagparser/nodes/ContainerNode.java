@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 @Getter
-@Setter
 public class ContainerNode extends Node {
     protected Node child;
     protected String text;
@@ -72,6 +71,11 @@ public class ContainerNode extends Node {
 
     public ContainerNode setNext(Node next) {
         return (ContainerNode) super.setNext(next);
+    }
+
+    public ContainerNode setText(String text) {
+        this.text = text;
+        return this;
     }
 
     public ContainerNode addChild(String string) {
