@@ -8,12 +8,15 @@ import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import it.fulminazzo.tagparser.utils.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 @Getter
 @Setter
@@ -41,6 +44,35 @@ public class Node {
     public void setAttributes(Map<String, String> attributes) {
         this.attributes.clear();
         if (attributes != null) attributes.forEach(this::setAttribute);
+    }
+
+    public void addNext(String string) {
+        addNext(Node.newNode(string));
+    }
+
+    public void addNext(File file) {
+        addNext(Node.newNode(file));
+    }
+
+    public void addNext(InputStream stream) {
+        addNext(Node.newNode(stream));
+    }
+
+    public void addNext(Node next) {
+        if (this.next != null) this.next.addNext(next);
+        else this.next = next;
+    }
+
+    public void removeNext(Node next) {
+        removeNext(n -> n.equals(next));
+    }
+
+    public void removeNext(Predicate<Node> predicate) {
+        if (this.next == null) return;
+        if (predicate.test(this.next)) {
+            this.next.removeNext(predicate);
+            this.next = this.next.next;
+        }
     }
 
     public void setNext(String string) {

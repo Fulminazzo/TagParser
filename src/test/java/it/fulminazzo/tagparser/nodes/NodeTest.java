@@ -111,6 +111,36 @@ class NodeTest {
             assertEquals(expected, node.toString());
         }
 
+        @Test
+        void testAddNext() {
+            Node n = new Node("next2");
+            node.addNext(n);
+            assertEquals(n, node.getNext().getNext());
+        }
+
+        @Test
+        void testRemoveNext() {
+            Node n = new Node("next2");
+            node.addNext(n);
+            node.removeNext(node.getNext());
+            assertEquals(n, node.getNext());
+        }
+
+        @Test
+        void testRemoveNextPredicate() {
+            Node n = new Node("next2");
+            node.addNext(n);
+            node.removeNext(t -> t.getTagName().equals("next"));
+            assertEquals(n, node.getNext());
+        }
+
+        @Test
+        void testSetNext() {
+            Node n = new Node("next2");
+            node.setNext(n);
+            assertEquals(n, node.getNext());
+        }
+
         private void setAttributes() {
             node.setAttribute("key1", "value1");
             node.setAttribute("key2", "\"value\\\"2\\\"\"");
