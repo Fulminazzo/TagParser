@@ -1,15 +1,14 @@
 package it.fulminazzo.tagparser.utils;
 
 public class StringUtils {
-    public static final String OPTIONS_REGEX = "([^=\\n ]+)(?:=(\"((?:\\\\\"|[^\"])+)\"|'((?:\\\\'|[^'])+)'|[^ ]+))?";
+    private static final char[] REPLACED_CHARS = new char[]{'"', '\''};
 
-    static String removeQuotes(String string) {
+    public static String removeQuotes(String string) {
         if (string == null) return null;
         if (string.startsWith("'") && string.endsWith("'") ||
                 string.startsWith("\"") && string.endsWith("\""))
             string = string.substring(1, string.length() - 1);
-        return string.replace("\\\\", "\\")
-                .replace("\\\"", "\"")
-                .replace("\\'", "'");
+        for (char c : REPLACED_CHARS) string = string.replace("\\" + c, "" + c);
+        return string;
     }
 }
