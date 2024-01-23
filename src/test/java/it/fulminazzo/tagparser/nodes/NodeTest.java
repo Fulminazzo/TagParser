@@ -119,6 +119,13 @@ class NodeTest {
         }
 
         @Test
+        void testCountNext() {
+            Node n = new Node("next2");
+            node.addNext(n);
+            assertEquals(2, node.countNextNodes());
+        }
+
+        @Test
         void testRemoveNext() {
             Node n = new Node("next2");
             node.addNext(n);

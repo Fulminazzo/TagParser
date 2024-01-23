@@ -46,6 +46,11 @@ public class Node {
         if (attributes != null) attributes.forEach(this::setAttribute);
     }
 
+    public int countNextNodes() {
+        if (this.next != null) return 1 + this.next.countNextNodes();
+        else return 0;
+    }
+
     public void addNext(String string) {
         addNext(Node.newNode(string));
     }
