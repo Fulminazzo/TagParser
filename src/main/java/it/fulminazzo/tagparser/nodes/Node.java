@@ -7,7 +7,6 @@ import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import it.fulminazzo.tagparser.utils.StringUtils;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -18,7 +17,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 @Getter
-@Setter
 public class Node {
     static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
     protected final String tagName;
@@ -32,19 +30,28 @@ public class Node {
         this.attributes = new LinkedHashMap<>();
     }
 
-    public void setAttribute(String key, String value) {
+    public Node setAttribute(String key, String value) {
         if (!key.matches(TAG_NAME_REGEX))
             throw new NotValidTagNameException(key);
         this.attributes.put(key, StringUtils.removeQuotes(value));
+        return this;
     }
 
     public String getAttribute(String key) {
         return this.attributes.get(key);
     }
 
-    public void setAttributes(Map<String, String> attributes) {
+    public Node setAttributes(String... attributes) {
+        if (attributes != null && attributes.length > 1)
+            for (int i = 0; i < attributes.length; i += 2)
+                setAttribute(attributes[i], attributes[i + 1]);
+        return this;
+    }
+
+    public Node setAttributes(Map<String, String> attributes) {
         this.attributes.clear();
         if (attributes != null) attributes.forEach(this::setAttribute);
+        return this;
     }
 
     public int countNextNodes() {
@@ -52,49 +59,52 @@ public class Node {
         else return 0;
     }
 
-    public void addNext(String string) {
-        addNext(Node.newNode(string));
+    public Node addNext(String string) {
+        return addNext(Node.newNode(string));
     }
 
-    public void addNext(File file) {
-        addNext(Node.newNode(file));
+    public Node addNext(File file) {
+        return addNext(Node.newNode(file));
     }
 
-    public void addNext(InputStream stream) {
-        addNext(Node.newNode(stream));
+    public Node addNext(InputStream stream) {
+        return addNext(Node.newNode(stream));
     }
 
-    public void addNext(Node next) {
+    public Node addNext(Node next) {
         if (this.next != null) this.next.addNext(next);
         else this.next = next;
+        return this;
     }
 
-    public void removeNext(Node next) {
-        removeNext(n -> n.equals(next));
+    public Node removeNext(Node next) {
+        return removeNext(n -> n.equals(next));
     }
 
-    public void removeNext(Predicate<Node> predicate) {
-        if (this.next == null) return;
+    public Node removeNext(Predicate<Node> predicate) {
+        if (this.next == null) return this;
         if (predicate.test(this.next)) {
             this.next.removeNext(predicate);
             this.next = this.next.next;
         }
+        return this;
     }
 
-    public void setNext(String string) {
-        setNext(Node.newNode(string));
+    public Node setNext(String string) {
+        return setNext(Node.newNode(string));
     }
 
-    public void setNext(File file) {
-        setNext(Node.newNode(file));
+    public Node setNext(File file) {
+        return setNext(Node.newNode(file));
     }
 
-    public void setNext(InputStream stream) {
-        setNext(Node.newNode(stream));
+    public Node setNext(InputStream stream) {
+        return setNext(Node.newNode(stream));
     }
 
-    public void setNext(Node next) {
+    public Node setNext(Node next) {
         this.next = next;
+        return this;
     }
 
     public String toHTML() {

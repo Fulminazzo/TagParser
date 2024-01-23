@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 @Getter
@@ -21,49 +22,104 @@ public class ContainerNode extends Node {
         super(tagName);
     }
 
-    public void addChild(String string) {
-        addChild(Node.newNode(string));
+    public ContainerNode setAttribute(String key, String value) {
+        return (ContainerNode) super.setAttribute(key, value);
     }
 
-    public void addChild(File file) {
-        addChild(Node.newNode(file));
+    public ContainerNode setAttributes(String... attributes) {
+        return (ContainerNode) super.setAttributes(attributes);
     }
 
-    public void addChild(InputStream stream) {
-        addChild(Node.newNode(stream));
+    public ContainerNode setAttributes(Map<String, String> attributes) {
+        return (ContainerNode) super.setAttributes(attributes);
     }
 
-    public void addChild(Node child) {
+    public ContainerNode addNext(String string) {
+        return (ContainerNode) super.addNext(string);
+    }
+
+    public ContainerNode addNext(File file) {
+        return (ContainerNode) super.addNext(file);
+    }
+
+    public ContainerNode addNext(InputStream stream) {
+        return (ContainerNode) super.addNext(stream);
+    }
+
+    public ContainerNode addNext(Node next) {
+        return (ContainerNode) super.addNext(next);
+    }
+
+    public ContainerNode removeNext(Node next) {
+        return (ContainerNode) super.removeNext(next);
+    }
+
+    public ContainerNode removeNext(Predicate<Node> predicate) {
+        return (ContainerNode) super.removeNext(predicate);
+    }
+
+    public ContainerNode setNext(String string) {
+        return (ContainerNode) super.setNext(string);
+    }
+
+    public ContainerNode setNext(File file) {
+        return (ContainerNode) super.setNext(file);
+    }
+
+    public ContainerNode setNext(InputStream stream) {
+        return (ContainerNode) super.setNext(stream);
+    }
+
+    public ContainerNode setNext(Node next) {
+        return (ContainerNode) super.setNext(next);
+    }
+
+    public ContainerNode addChild(String string) {
+        return addChild(Node.newNode(string));
+    }
+
+    public ContainerNode addChild(File file) {
+        return addChild(Node.newNode(file));
+    }
+
+    public ContainerNode addChild(InputStream stream) {
+        return addChild(Node.newNode(stream));
+    }
+
+    public ContainerNode addChild(Node child) {
         if (this.child != null) this.child.addNext(child);
         else this.child = child;
+        return this;
     }
 
-    public void removeChild(Node child) {
-        removeChild(n -> n.equals(child));
+    public ContainerNode removeChild(Node child) {
+        return removeChild(n -> n.equals(child));
     }
 
-    public void removeChild(Predicate<Node> predicate) {
-        if (this.child == null) return;
+    public ContainerNode removeChild(Predicate<Node> predicate) {
+        if (this.child == null) return this;
         if (predicate.test(this.child)) {
             this.child.removeNext(predicate);
             this.child = this.child.next;
         }
+        return this;
     }
 
-    public void setChild(String string) {
-        setChild(Node.newNode(string));
+    public ContainerNode setChild(String string) {
+        return setChild(Node.newNode(string));
     }
 
-    public void setChild(File file) {
-        setChild(Node.newNode(file));
+    public ContainerNode setChild(File file) {
+        return setChild(Node.newNode(file));
     }
 
-    public void setChild(InputStream stream) {
-        setChild(Node.newNode(stream));
+    public ContainerNode setChild(InputStream stream) {
+        return setChild(Node.newNode(stream));
     }
 
-    public void setChild(Node child) {
+    public ContainerNode setChild(Node child) {
         this.child = child;
+        return this;
     }
 
     public int countChildren() {
