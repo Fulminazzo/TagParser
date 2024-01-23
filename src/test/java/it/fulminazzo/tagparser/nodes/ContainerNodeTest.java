@@ -5,8 +5,9 @@ import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,6 +48,27 @@ class ContainerNodeTest {
     }
 
     @Test
+    void testAddChildString() {
+        Node n = new Node("next2");
+        node.addChild("<next2/>");
+        assertEquals(n, node.getChild().getNext());
+    }
+
+    @Test
+    void testAddChildFile() {
+        Node n = new Node("next2");
+        node.addChild(new File(NodeTest.RESOURCES, "node.xml"));
+        assertEquals(n, node.getChild().getNext());
+    }
+
+    @Test
+    void testAddChildStream() {
+        Node n = new Node("next2");
+        node.addChild(new ByteArrayInputStream("<next2/>".getBytes()));
+        assertEquals(n, node.getChild().getNext());
+    }
+
+    @Test
     void testAddChild() {
         Node n = new Node("child2");
         node.addChild(n);
@@ -79,6 +101,27 @@ class ContainerNodeTest {
         Node n = new Node("child2");
         node.addChild(n);
         node.removeChild(t -> t.getTagName().equals("child"));
+        assertEquals(n, node.getChild());
+    }
+
+    @Test
+    void testSetChildString() {
+        Node n = new Node("next2");
+        node.setChild("<next2/>");
+        assertEquals(n, node.getChild());
+    }
+
+    @Test
+    void testSetChildFile() {
+        Node n = new Node("next2");
+        node.setChild(new File(NodeTest.RESOURCES, "node.xml"));
+        assertEquals(n, node.getChild());
+    }
+
+    @Test
+    void testSetChildStream() {
+        Node n = new Node("next2");
+        node.setChild(new ByteArrayInputStream("<next2/>".getBytes()));
         assertEquals(n, node.getChild());
     }
 
