@@ -2,17 +2,19 @@ package it.fulminazzo.tagparser.nodes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NodeTest {
 
@@ -38,7 +40,9 @@ class NodeTest {
     @ParameterizedTest
     @MethodSource("getTagNameTests")
     void testTagNameRegex(String tag, boolean valid) {
-        assertEquals(valid, tag.matches(Node.TAG_NAME_REGEX));
+        Executable getNode = () -> new Node(tag);
+        if (valid) assertDoesNotThrow(getNode);
+        else assertThrowsExactly(NotValidTagNameException.class, getNode);
     }
 
     @Nested
@@ -70,6 +74,15 @@ class NodeTest {
             node.setAttributes(map);
             map.put("key1", "value");
             assertEquals(map, node.getAttributes());
+        }
+
+        @Test
+        void testGetAttributes() {
+            setAttributes();
+            assertEquals("value1", node.getAttribute("key1"));
+            assertEquals("value\"2\"", node.getAttribute("key2"));
+            assertEquals("value3", node.getAttribute("key3"));
+            assertNull(node.getAttribute("key4"));
         }
 
         @Test
