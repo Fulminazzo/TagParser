@@ -150,6 +150,26 @@ public class Node {
         return builder.append("}").toString();
     }
 
+    protected String printField(Field field) {
+        final StringBuilder builder = new StringBuilder();
+        try {
+            builder.append(field.getName()).append(": ");
+            field.setAccessible(true);
+            Object value = field.get(this);
+            if (value instanceof String) builder.append("\"");
+            if (field.getName().equals("next") && next != null)
+                builder.append(next.getClass().getSimpleName())
+                        .append("(\"")
+                        .append(next.getTagName())
+                        .append("\")");
+            else builder.append(value);
+            if (value instanceof String) builder.append("\"");
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return builder.toString();
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder(this.getClass().getSimpleName() + " {");
@@ -157,23 +177,8 @@ public class Node {
         Class<?> clazz = this.getClass();
         while (clazz != Object.class) {
             for (Field field : clazz.getDeclaredFields())
-                if (!Modifier.isStatic(field.getModifiers())) {
-                    builder.append("\n    ").append(field.getName()).append(": ");
-                    try {
-                        field.setAccessible(true);
-                        Object value = field.get(this);
-                        if (value instanceof String) builder.append("\"");
-                        if (field.getName().equals("next") && next != null)
-                            builder.append(next.getClass().getSimpleName())
-                                    .append("(\"")
-                                    .append(next.getTagName())
-                                    .append("\")");
-                        else builder.append(value);
-                        if (value instanceof String) builder.append("\"");
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                if (!Modifier.isStatic(field.getModifiers()))
+                    builder.append("\n    ").append(printField(field));
             clazz = clazz.getSuperclass();
         }
         return builder.append("\n}").toString();
