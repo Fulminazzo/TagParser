@@ -12,6 +12,7 @@ public class Node {
     protected final String tagName;
     protected final Map<String, String> attributes;
     protected boolean closed;
+    protected Node next;
     protected Node child;
     protected String contents;
 
@@ -44,6 +45,14 @@ public class Node {
         return closed;
     }
 
+    public void setNext(Node next) {
+        this.next = next;
+    }
+
+    public Node getNext() {
+        return next;
+    }
+
     public void setChild(Node child) {
         this.child = child;
     }
@@ -65,18 +74,23 @@ public class Node {
     }
 
     public static Node newNode(InputStream stream) {
+        return Node.newNode(new StringBuilder(), stream);
+    }
+
+    private static Node newNode(final StringBuilder buffer, InputStream stream) {
         try {
-            final StringBuilder buffer = new StringBuilder();
             final Map<String, String> attributes = new LinkedHashMap<>();
 
             int read = stream.read();
             if (read == -1) throw new IOException("End of stream");
 
             // Read tag name from given stream.
-            if (read != '<') buffer.append((char) read);
-            while ((read = stream.read()) != -1)
-                if (read == ' ' || read == '>') break;
-                else buffer.append((char) read);
+            if (read != '>') {
+                if (read != '<') buffer.append((char) read);
+                while ((read = stream.read()) != -1)
+                    if (read == ' ' || read == '>') break;
+                    else buffer.append((char) read);
+            }
             final String tagName = buffer.toString();
             final Node node = new Node(tagName);
             buffer.setLength(0);
@@ -109,15 +123,25 @@ public class Node {
             // Read contents from given stream.
             final String end = "</" + tagName + ">";
             while ((read = stream.read()) != -1 && !buffer.toString().endsWith(end))
-                if (read == '<' && (buffer.length() == 0 || buffer.charAt(buffer.length() - 1) != '\\')) {
-                    node.setChild(Node.newNode(stream));
-                    break;
-                } else buffer.append((char) read);
+                buffer.append((char) read);
 
             String contents = buffer.toString();
-            if (!contents.endsWith(end)) node.setClosed(false);
-            else contents = contents.substring(0, contents.length() - end.length());
+            if (contents.endsWith(end)) {
+                contents = contents.substring(0, contents.length() - end.length());
+                node.setClosed(true);
+            } else node.setClosed(false);
+
+            if (contents.startsWith("<")) {
+                InputStream byteStream = new ByteArrayInputStream(contents.getBytes());
+                node.setChild(Node.newNode(byteStream));
+                buffer.setLength(0);
+                while ((read = byteStream.read()) != -1) buffer.append((char) read);
+                contents = buffer.toString();
+            }
+
             node.setContents(contents);
+
+            if (stream.available() > 0) node.setNext(Node.newNode(stream));
 
             return node;
         } catch (IOException e) {
@@ -125,34 +149,38 @@ public class Node {
         }
     }
 
-//    public static String printNode(Node node) {
-//        if (node == null) return null;
-//        final StringBuilder builder = new StringBuilder();
-//        builder.append("<").append(node.getTagName());
-//
-//        final Map<String, String> attributes = node.getAttributes();
-//        if (attributes != null && !attributes.isEmpty()) {
-//            builder.append(" ");
-//            for (String key : attributes.keySet()) {
-//                final String value = attributes.get(key);
-//                builder.append(key);
-//                if (value != null) builder.append("=").append(value);
-//                builder.append(" ");
-//            }
-//            builder.setLength(builder.length() - 1);
-//        }
-//
-//        builder.append(">");
-//
-//        final Node child = node.getChild();
-//        if (child != null) builder.append(printNode(child));
-//        else {
-//            final String contents = node.getContents();
-//            if (contents != null) builder.append(contents);
-//        }
-//
-//        //TODO: next
-//        //TODO: closed
-//        return builder.toString();
-//    }
+    public static String printNode(Node node) {
+        if (node == null) return null;
+        final StringBuilder builder = new StringBuilder();
+        builder.append("<").append(node.getTagName());
+
+        final Map<String, String> attributes = node.getAttributes();
+        if (attributes != null && !attributes.isEmpty()) {
+            builder.append(" ");
+            for (String key : attributes.keySet()) {
+                final String value = attributes.get(key);
+                builder.append(key);
+                if (value != null) builder.append("=").append(value);
+                builder.append(" ");
+            }
+            builder.setLength(builder.length() - 1);
+        }
+
+        builder.append(">");
+
+        final Node child = node.getChild();
+        if (child != null) builder.append(printNode(child));
+        else {
+            final String contents = node.getContents();
+            if (contents != null) builder.append(contents);
+        }
+
+        if (node.isClosed())
+            builder.append("</").append(node.getTagName()).append(">");
+
+        if (node.getNext() != null)
+            builder.append(Node.printNode(node.getNext()));
+
+        return builder.toString();
+    }
 }
