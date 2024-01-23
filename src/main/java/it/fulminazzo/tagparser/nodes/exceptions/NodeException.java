@@ -2,6 +2,10 @@ package it.fulminazzo.tagparser.nodes.exceptions;
 
 public class NodeException extends RuntimeException {
 
+    public NodeException() {
+
+    }
+
     public NodeException(String message) {
         super(message);
     }
