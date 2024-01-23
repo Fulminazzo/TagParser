@@ -1,6 +1,5 @@
 package it.fulminazzo.tagparser.nodes;
 
-import it.fulminazzo.tagparser.nodes.exceptions.EndOfStreamException;
 import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
@@ -14,6 +13,8 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Getter
@@ -229,16 +230,17 @@ public class Node {
         try {
             final Map<String, String> attributes = new LinkedHashMap<>();
 
-            int read = stream.read();
-            if (read == -1) throw new EndOfStreamException();
+            int read = 0;
 
             // Read tag name from given stream.
-            if (read != '>') {
-                if (read != '<') buffer.append((char) read);
-                while ((read = stream.read()) != -1)
-                    if (read == ' ' || read == '>') break;
-                    else buffer.append((char) read);
-            }
+            read = read(stream, read, buffer, null, r -> {
+                if (r.toString().matches("[\t\n\r]")) return;
+                if (r == '<')
+                    if (buffer.toString().contains("<")) throw new NotValidTagNameException(buffer.toString());
+                    else return;
+                if (r == ' ' || r == '>') throw new NodeException();
+                else buffer.append(r);
+            });
             String tagName = buffer.toString();
             final Node node;
             boolean isContainer = true;
@@ -285,13 +287,13 @@ public class Node {
                 ContainerNode containerNode = (ContainerNode) node;
                 // Read contents from given stream.
                 final String end = "</" + tagName + ">";
-                while (!buffer.toString().endsWith(end) && (read = stream.read()) != -1) {
-                    if (read != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
+                read(stream, read, buffer, () -> !buffer.toString().endsWith(end), r -> {
+                    if (r != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
                         buffer.setLength(buffer.length() - 1);
-                        Node n = Node.newNode(new StringBuilder().append((char) read), stream, false);
+                        Node n = Node.newNode(new StringBuilder().append((char) r), stream, false);
                         containerNode.addChild(n);
-                    } else buffer.append((char) read);
-                }
+                    } else buffer.append((char) r);
+                });
 
                 String text = buffer.toString();
                 if (text.endsWith(end))
@@ -308,5 +310,31 @@ public class Node {
         } catch (IOException e) {
             throw new NodeException(e);
         }
+    }
+
+    private static char read(InputStream stream, int start, StringBuilder buffer, BooleanSupplier tester, Consumer<Character> read) throws IOException {
+        final StringBuilder commentBuffer = new StringBuilder().append((char) start);
+        boolean commented = false;
+        int r = 0;
+        while ((tester == null || tester.getAsBoolean()) && (r = stream.read()) != -1)
+            try {
+                commentBuffer.append((char) r);
+                if (commented) {
+                    if (commentBuffer.toString().endsWith("-->")) {
+                        commentBuffer.setLength(0);
+                        commented = false;
+                    }
+                } else {
+                    if (commentBuffer.toString().endsWith("<!--")) {
+                        commentBuffer.setLength(0);
+                        commented = true;
+                        buffer.setLength(0);
+                    } else read.accept((char) r);
+                }
+                if (commentBuffer.length() > 4) commentBuffer.delete(0, commentBuffer.length() - 4);
+            } catch (NodeException e) {
+                break;
+            }
+        return (char) r;
     }
 }

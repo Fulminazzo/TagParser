@@ -2,7 +2,6 @@ package it.fulminazzo.tagparser.nodes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.fulminazzo.tagparser.nodes.exceptions.EndOfStreamException;
 import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
@@ -44,7 +43,8 @@ class NodeTest {
                 new Object[]{"Final_Test99", true},
                 new Object[]{"final_test99", true},
                 new Object[]{"Final_Test", true},
-                new Object[]{"final_test", true}
+                new Object[]{"final_test", true},
+                new Object[]{"<<final_test", false}
         };
     }
 
@@ -135,13 +135,6 @@ class NodeTest {
             InputStream stream = mock(InputStream.class);
             when(stream.read()).thenThrow(IOException.class);
             assertThrowsExactly(NodeException.class, () -> Node.newNode(stream));
-        }
-
-        @Test
-        void testStreamEnd() throws IOException {
-            InputStream stream = mock(InputStream.class);
-            when(stream.read()).thenReturn(-1);
-            assertThrowsExactly(EndOfStreamException.class, () -> Node.newNode(stream));
         }
 
         @Test
