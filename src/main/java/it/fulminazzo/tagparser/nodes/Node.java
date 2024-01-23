@@ -33,6 +33,8 @@ public class Node {
     }
 
     public void setAttribute(String key, String value) {
+        if (!key.matches(TAG_NAME_REGEX))
+            throw new NotValidTagNameException(key);
         this.attributes.put(key, StringUtils.removeQuotes(value));
     }
 
@@ -213,7 +215,6 @@ public class Node {
         return newNode(new StringBuilder(), stream, true);
     }
 
-    //TODO: Check for attributes!
     static Node newNode(final StringBuilder buffer, InputStream stream, boolean checkNext) {
         try {
             final Map<String, String> attributes = new LinkedHashMap<>();
