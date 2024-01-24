@@ -1,6 +1,5 @@
 package it.fulminazzo.tagparser.nodes;
 
-import it.fulminazzo.tagparser.nodes.exceptions.BreakException;
 import it.fulminazzo.tagparser.nodes.exceptions.EmptyNodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
@@ -15,7 +14,6 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -233,14 +231,13 @@ public class Node {
             final Map<String, String> attributes = new LinkedHashMap<>();
 
             // Read tag name from given stream.
-            int read = read(stream, 0, buffer, null, r -> {
+            int read = read(stream, 0, buffer, r -> buffer.indexOf("<") == -1 || (r != ' ' && r != '>'), r -> {
                 if (r.toString().matches("[\t\n\r]")) return;
-                if (r == '<')
-                    if (buffer.toString().contains("<")) throw new NotValidTagNameException(buffer.toString());
-                if (buffer.indexOf("<") != -1 && r == ' ' || r == '>') throw new BreakException();
-                else buffer.append(r);
+                if (r == '<' && buffer.toString().contains("<")) throw new NotValidTagNameException(buffer.toString());
+                buffer.append(r);
             });
             String tagName = buffer.toString();
+            if (tagName.endsWith(" ") || tagName.endsWith(">")) tagName = tagName.substring(0, tagName.length() - 1);
             while (tagName.matches("[ \n\t\r]+.*")) tagName = tagName.substring(1);
             if (tagName.isEmpty()) throw new EmptyNodeException();
             tagName = tagName.substring(1);
@@ -295,7 +292,7 @@ public class Node {
                 ContainerNode containerNode = (ContainerNode) node;
                 // Read contents from given stream.
                 final String end = "</" + tagName + ">";
-                read(stream, read, buffer, () -> !buffer.toString().endsWith(end), r -> {
+                read(stream, read, buffer, r -> !buffer.toString().endsWith(end), r -> {
                     if (r != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
                         buffer.setLength(buffer.length() - 1);
                         Node n = Node.newNode(new StringBuilder("<").append((char) r), stream, false);
@@ -325,30 +322,27 @@ public class Node {
         }
     }
 
-    private static char read(InputStream stream, int start, StringBuilder buffer, BooleanSupplier tester, Consumer<Character> read) throws IOException {
+    private static char read(InputStream stream, int start, StringBuilder buffer, Predicate<Character> tester, Consumer<Character> read) throws IOException {
         final StringBuilder commentBuffer = new StringBuilder(buffer.toString());
         if (start != 0) commentBuffer.append(start);
         boolean commented = false;
         int r = 0;
-        while ((tester == null || tester.getAsBoolean()) && (r = stream.read()) != -1)
-            try {
-                commentBuffer.append((char) r);
-                if (commented) {
-                    if (commentBuffer.toString().endsWith("-->")) {
-                        commentBuffer.setLength(0);
-                        commented = false;
-                    }
-                } else {
-                    if (commentBuffer.toString().endsWith("<!--")) {
-                        commentBuffer.setLength(0);
-                        commented = true;
-                        buffer.setLength(0);
-                    } else read.accept((char) r);
+        while ((tester == null || tester.test((char) r)) && (r = stream.read()) != -1) {
+            commentBuffer.append((char) r);
+            if (commented) {
+                if (commentBuffer.toString().endsWith("-->")) {
+                    commentBuffer.setLength(0);
+                    commented = false;
                 }
-                if (commentBuffer.length() > 5) commentBuffer.delete(0, commentBuffer.length() - 5);
-            } catch (BreakException e) {
-                break;
+            } else {
+                if (commentBuffer.toString().endsWith("<!--")) {
+                    commentBuffer.setLength(0);
+                    commented = true;
+                    buffer.setLength(0);
+                } else read.accept((char) r);
             }
+            if (commentBuffer.length() > 5) commentBuffer.delete(0, commentBuffer.length() - 5);
+        }
         return (char) r;
     }
 }
