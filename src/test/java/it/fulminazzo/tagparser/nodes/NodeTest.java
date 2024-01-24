@@ -227,7 +227,7 @@ class NodeTest {
             setAttributes();
             Gson gson = new GsonBuilder().serializeNulls().create();
             final String expected = gson.toJson(node);
-            assertEquals(expected, node.toJson());
+            assertEquals(expected, node.toJSON());
         }
 
         @Test
