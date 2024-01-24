@@ -223,7 +223,7 @@ class NodeTest {
         }
 
         @Test
-        void testToJson() {
+        void testToJSON() {
             setAttributes();
             Gson gson = new GsonBuilder().serializeNulls().create();
             final String expected = gson.toJson(node);

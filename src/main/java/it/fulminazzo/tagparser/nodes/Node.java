@@ -1,8 +1,6 @@
 package it.fulminazzo.tagparser.nodes;
 
-import it.fulminazzo.tagparser.nodes.exceptions.EmptyNodeException;
-import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
-import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
+import it.fulminazzo.tagparser.nodes.exceptions.*;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import it.fulminazzo.tagparser.utils.StringUtils;
@@ -21,7 +19,6 @@ import java.util.function.Predicate;
 
 /**
  * The most basic type of node.
- * This node does not support any type of tag verification or content recognition.
  * It only supports attributes and does not require closing tags.
  * <p>
  * Example: &#60;img src="test.png" alt="This will be wrapped in a simple Node" /&#62;
@@ -30,17 +27,17 @@ import java.util.function.Predicate;
  */
 @Getter
 public class Node {
-    static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
+    public static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
     protected final @NotNull String tagName;
     protected final @NotNull Map<String, String> attributes;
-    protected Node next;
+    protected @Nullable Node next;
 
     /**
      * Instantiates a new Node.
      *
      * @param tagName the tag name
      */
-    Node(@NotNull String tagName) {
+    public Node(@NotNull String tagName) {
         if (!tagName.matches(TAG_NAME_REGEX))
             throw new NotValidTagNameException(tagName);
         this.tagName = tagName;
@@ -50,10 +47,11 @@ public class Node {
     /**
      * Sets attribute.
      *
-     * @param name   the name
+     * @param name  the name
      * @param value the value
      * @return the attribute
      */
+    @Deprecated
     public Node setAttribute(@NotNull String name, @Nullable String value) {
         if (!name.matches(TAG_NAME_REGEX))
             throw new NotValidTagNameException(name);
@@ -67,6 +65,7 @@ public class Node {
      * @param name the name
      * @return the attribute
      */
+    @Deprecated
     public String getAttribute(@NotNull String name) {
         return this.attributes.get(name);
     }
@@ -77,6 +76,7 @@ public class Node {
      * @param attributes the attributes
      * @return the attributes
      */
+    @Deprecated
     public Node setAttributes(String @Nullable ... attributes) {
         if (attributes != null && attributes.length > 1)
             for (int i = 0; i < attributes.length; i += 2)
@@ -90,6 +90,7 @@ public class Node {
      * @param attributes the attributes
      * @return the attributes
      */
+    @Deprecated
     public Node setAttributes(@Nullable Map<String, String> attributes) {
         this.attributes.clear();
         if (attributes != null) attributes.forEach(this::setAttribute);
@@ -342,8 +343,19 @@ public class Node {
      * @param string the string
      * @return the node
      */
-    public static Node newNode(@Nullable String string) {
-        return string == null ? null : newNode(new ByteArrayInputStream(string.getBytes()));
+    public static @Nullable Node newNode(@Nullable String string) {
+        return newNode(string, null);
+    }
+
+    /**
+     * Creates a new node from the raw string.
+     *
+     * @param string the string
+     * @param rules the rules to use for validating the nodes
+     * @return the node
+     */
+    public static @Nullable Node newNode(@Nullable String string, NodeRules rules) {
+        return string == null ? null : newNode(new ByteArrayInputStream(string.getBytes()), rules);
     }
 
     /**
@@ -353,9 +365,20 @@ public class Node {
      * @return the node
      */
     public static @NotNull Node newNode(@NotNull File file) {
+        return newNode(file, null);
+    }
+
+    /**
+     * Creates a new node from the given file.
+     *
+     * @param file  the file
+     * @param rules the rules to use for validating the nodes
+     * @return the node
+     */
+    public static @NotNull Node newNode(@NotNull File file, NodeRules rules) {
         try {
             if (file.isDirectory()) throw new FileIsDirectoryException(file);
-            return newNode(new FileInputStream(file));
+            return newNode(new FileInputStream(file), rules);
         } catch (FileNotFoundException e) {
             throw new FileDoesNotExistException(file);
         }
@@ -368,7 +391,18 @@ public class Node {
      * @return the node
      */
     public static @NotNull Node newNode(@NotNull InputStream stream) {
-        return newNode(new StringBuilder(), stream, true);
+        return newNode(stream, null);
+    }
+
+    /**
+     * Creates a new node from the raw stream.
+     *
+     * @param stream the stream
+     * @param rules the rules to use for validating the nodes
+     * @return the node
+     */
+    public static @NotNull Node newNode(@NotNull InputStream stream, NodeRules rules) {
+        return newNode(new StringBuilder(), stream, true, rules);
     }
 
     /**
@@ -378,10 +412,12 @@ public class Node {
      * @param buffer    the buffer
      * @param stream    the stream
      * @param checkNext toggle this option to check for next elements
+     * @param rules the rules to use for validating the nodes
      * @return the node
      */
-    static @NotNull Node newNode(final @NotNull StringBuilder buffer, @NotNull InputStream stream, boolean checkNext) {
+    static @NotNull Node newNode(final @NotNull StringBuilder buffer, @NotNull InputStream stream, boolean checkNext, @Nullable NodeRules rules) {
         try {
+            if (rules == null) rules = new NodeRules();
             final Map<String, String> attributes = new LinkedHashMap<>();
 
             // Read tag name from given stream.
@@ -438,18 +474,29 @@ public class Node {
                 buffer.setLength(0);
             }
 
+            Boolean validateTag = rules.validateTag(tagName);
+            if (validateTag != null) isContainer = validateTag;
+
+            if (isContainer && !rules.isAllowingNotClosedTags())
+                throw new NotClosedTagsNotAllowedException(tagName);
+            else if (!isContainer && !rules.isAllowingClosingTags())
+                throw new ClosingTagsNotAllowedException(tagName);
+
             if (!isContainer) node = new Node(tagName);
             else node = new ContainerNode(tagName);
+
+            rules.validateAttributes(attributes);
             node.setAttributes(attributes);
 
             if (node instanceof ContainerNode) {
                 ContainerNode containerNode = (ContainerNode) node;
                 // Read contents from given stream.
                 final String end = "</" + tagName + ">";
+                @Nullable NodeRules finalRules = rules;
                 read(stream, read, buffer, r -> !buffer.toString().endsWith(end), r -> {
                     if (r != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
                         buffer.setLength(buffer.length() - 1);
-                        Node n = Node.newNode(new StringBuilder("<").append((char) r), stream, false);
+                        Node n = Node.newNode(new StringBuilder("<").append((char) r), stream, false, finalRules);
                         containerNode.addChild(n);
                     } else buffer.append((char) r);
                 });
@@ -459,13 +506,16 @@ public class Node {
                     text = text.substring(0, text.length() - end.length());
                 else throw new NodeException(String.format("Node \"%s\" not closed. Raw text: \"%s\"", tagName, text));
 
-                if (!text.trim().isEmpty()) containerNode.setText(text);
+                if (!text.trim().isEmpty()) {
+                    rules.validateContents(text);
+                    containerNode.setText(text);
+                }
             }
 
             // Check for other content to be added.
             if (checkNext && stream.available() > 0)
                 try {
-                    node.setNext(stream);
+                    node.setNext(Node.newNode(stream, rules));
                 } catch (EmptyNodeException ignored) {
 
                 }
