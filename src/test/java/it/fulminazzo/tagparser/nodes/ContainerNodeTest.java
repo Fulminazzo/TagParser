@@ -37,7 +37,7 @@ class ContainerNodeTest {
     }
 
     @Test
-    void testToJson() {
+    void testToJSON() {
         Gson gson = new GsonBuilder().serializeNulls().create();
         final String expected = gson.toJson(node);
         assertEquals(expected, node.toJSON());

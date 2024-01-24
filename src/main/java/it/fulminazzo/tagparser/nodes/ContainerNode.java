@@ -21,6 +21,7 @@ import java.util.function.Predicate;
  * <p>
  * Example: &#60;p&#62;A paragraph would be wrapped in a container node!&#60;/p&#62;
  */
+@SuppressWarnings("UnusedReturnValue")
 @Getter
 public class ContainerNode extends Node {
     protected @Nullable Node child;
@@ -36,7 +37,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setAttribute(@NotNull String name, String value) {
+    public ContainerNode setAttribute(@NotNull String name, @Nullable String value) {
         return (ContainerNode) super.setAttribute(name, value);
     }
 
@@ -66,7 +67,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode addNext(@NotNull Node next) {
+    public ContainerNode addNext(@Nullable Node next) {
         return (ContainerNode) super.addNext(next);
     }
 
