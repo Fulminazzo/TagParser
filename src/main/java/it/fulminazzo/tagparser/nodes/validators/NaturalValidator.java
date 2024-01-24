@@ -4,14 +4,14 @@ import it.fulminazzo.tagparser.nodes.exceptions.NotValidAttributeException;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A validator for {@link Integer} objects.
+ * A validator for {@link Integer} objects higher or equal than 0.
  */
-public class IntegerValidator implements AttributeValidator {
+public class NaturalValidator implements AttributeValidator {
 
     @Override
     public void validate(String name, @NotNull String value) throws NotValidAttributeException {
         try {
-            Integer.parseInt(value);
+            if (Integer.parseInt(value) < 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
             throw new NotValidAttributeException(name, Integer.class, value);
         }
