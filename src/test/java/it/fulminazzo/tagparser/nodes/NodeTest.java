@@ -50,18 +50,18 @@ class NodeTest {
 
     static Object[][] getNodeTests() {
         return new Object[][]{
-                new Object[]{"body", new LinkedHashMap<>(), "", "<body/>"},
-                new Object[]{"body", new LinkedHashMap<>(), "", "<body></body>"},
+                new Object[]{"body", new LinkedHashMap<>(), null, "<body/>"},
+                new Object[]{"body", new LinkedHashMap<>(), null, "<body></body>"},
                 new Object[]{"body", new LinkedHashMap<String, String>(){{
                     put("key1", "value1");
                     put("key2", "'value'\"2\"");
                     put("key3", "value\"3\"");
-                }}, "", "<body key1=value1 key2=\"\\'value\\'\\\"2\\\"\" key3='value\"3\"'/>"},
+                }}, null, "<body key1=value1 key2=\"\\'value\\'\\\"2\\\"\" key3='value\"3\"'/>"},
                 new Object[]{"body", new LinkedHashMap<String, String>(){{
                     put("key1", "value1");
                     put("key2", "'value'\"2\"");
                     put("key3", "value\"3\"");
-                }}, "", "<body key1=value1 key2=\"\\'value\\'\\\"2\\\"\" key3='value\"3\"' ></body>"},
+                }}, null, "<body key1=value1 key2=\"\\'value\\'\\\"2\\\"\" key3='value\"3\"' ></body>"},
                 new Object[]{"body", new LinkedHashMap<>(), "Contents", "<body>Contents</body>"},
                 new Object[]{"body", new LinkedHashMap<>(), "Contents", "<body>Contents</body>"},
                 new Object[]{"body", new LinkedHashMap<>(),
@@ -87,7 +87,7 @@ class NodeTest {
         assertEquals(attributes, node.getAttributes());
         if (node instanceof ContainerNode) {
             ContainerNode containerNode = (ContainerNode) node;
-            if (contents instanceof String) assertEquals(contents, containerNode.getText());
+            if (contents == null || contents instanceof String) assertEquals(contents, containerNode.getText());
             else {
                 Object[] objects = (Object[]) contents;
                 final Node child = containerNode.getChild();

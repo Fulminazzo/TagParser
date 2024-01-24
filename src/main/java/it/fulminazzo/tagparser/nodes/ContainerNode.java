@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -255,6 +256,24 @@ public class ContainerNode extends Node {
         }
         builder.append("</").append(tagName).append(">");
         return builder.toString();
+    }
+
+    /**
+     * Compares the current node with another one.
+     *
+     * @param node the node
+     * @return the boolean
+     */
+    public boolean equals(@Nullable ContainerNode node) {
+        if (node == null) return false;
+        if (!Objects.equals(this.child, node.getChild())) return false;
+        return Objects.equals(this.text, node.getText());
+    }
+
+    @Override
+    public boolean equals(@Nullable Node node) {
+        if (node instanceof ContainerNode) return equals((ContainerNode) node);
+        return super.equals(node);
     }
 
     @Override

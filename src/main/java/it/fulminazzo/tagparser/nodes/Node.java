@@ -459,7 +459,7 @@ public class Node {
                     text = text.substring(0, text.length() - end.length());
                 else throw new NodeException(String.format("Node \"%s\" not closed. Raw text: \"%s\"", tagName, text));
 
-                containerNode.setText(text);
+                if (!text.trim().isEmpty()) containerNode.setText(text);
             }
 
             // Check for other content to be added.
