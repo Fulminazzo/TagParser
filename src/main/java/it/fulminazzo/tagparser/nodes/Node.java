@@ -1,5 +1,7 @@
 package it.fulminazzo.tagparser.nodes;
 
+import it.fulminazzo.tagparser.nodes.exceptions.BreakException;
+import it.fulminazzo.tagparser.nodes.exceptions.EmptyNodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
@@ -230,18 +232,18 @@ public class Node {
         try {
             final Map<String, String> attributes = new LinkedHashMap<>();
 
-            int read = 0;
-
             // Read tag name from given stream.
-            read = read(stream, read, buffer, null, r -> {
+            int read = read(stream, 0, buffer, null, r -> {
                 if (r.toString().matches("[\t\n\r]")) return;
                 if (r == '<')
                     if (buffer.toString().contains("<")) throw new NotValidTagNameException(buffer.toString());
-                    else return;
-                if (r == ' ' || r == '>') throw new NodeException();
+                if (buffer.indexOf("<") != -1 && r == ' ' || r == '>') throw new BreakException();
                 else buffer.append(r);
             });
             String tagName = buffer.toString();
+            while (tagName.matches("[ \n\t\r]+.*")) tagName = tagName.substring(1);
+            if (tagName.isEmpty()) throw new EmptyNodeException();
+            tagName = tagName.substring(1);
             final Node node;
             boolean isContainer = true;
             if (read == '>' && tagName.endsWith("/")) {
@@ -296,7 +298,7 @@ public class Node {
                 read(stream, read, buffer, () -> !buffer.toString().endsWith(end), r -> {
                     if (r != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
                         buffer.setLength(buffer.length() - 1);
-                        Node n = Node.newNode(new StringBuilder().append((char) r), stream, false);
+                        Node n = Node.newNode(new StringBuilder("<").append((char) r), stream, false);
                         containerNode.addChild(n);
                     } else buffer.append((char) r);
                 });
@@ -310,7 +312,12 @@ public class Node {
             }
 
             // Check for other content to be added.
-            if (checkNext && stream.available() > 0) node.setNext(stream);
+            if (checkNext && stream.available() > 0)
+                try {
+                    node.setNext(stream);
+                } catch (EmptyNodeException ignored) {
+
+                }
 
             return node;
         } catch (IOException e) {
@@ -319,7 +326,8 @@ public class Node {
     }
 
     private static char read(InputStream stream, int start, StringBuilder buffer, BooleanSupplier tester, Consumer<Character> read) throws IOException {
-        final StringBuilder commentBuffer = new StringBuilder().append((char) start);
+        final StringBuilder commentBuffer = new StringBuilder(buffer.toString());
+        if (start != 0) commentBuffer.append(start);
         boolean commented = false;
         int r = 0;
         while ((tester == null || tester.getAsBoolean()) && (r = stream.read()) != -1)
@@ -337,8 +345,8 @@ public class Node {
                         buffer.setLength(0);
                     } else read.accept((char) r);
                 }
-                if (commentBuffer.length() > 4) commentBuffer.delete(0, commentBuffer.length() - 4);
-            } catch (NodeException e) {
+                if (commentBuffer.length() > 5) commentBuffer.delete(0, commentBuffer.length() - 5);
+            } catch (BreakException e) {
                 break;
             }
         return (char) r;

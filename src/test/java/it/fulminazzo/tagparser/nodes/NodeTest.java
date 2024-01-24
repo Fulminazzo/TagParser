@@ -111,6 +111,17 @@ class NodeTest {
         assertEquals(attributes, Node.newNode(raw).getAttributes());
     }
 
+    @Test
+    void testComment() {
+        String raw = "<svg fill=\"var(--button-color)\" class=\"hamburger\" viewBox=\"0 0 100 100\" width=\"250\">\n" +
+                "    <!-- rx: round corners -->\n" +
+                "    <rect class=\"line top\" x=\"10\" y=\"25\" width=\"80\" height=\"10\" rx=\"5\"></rect>\n" +
+                "    <rect class=\"line middle\" x=\"10\" y=\"45\" width=\"80\" height=\"10\" rx=\"5\"></rect>\n" +
+                "    <rect class=\"line bottom\" x=\"10\" y=\"65\" width=\"80\" height=\"10\" rx=\"5\"></rect>\n" +
+                "</svg>\n";
+        assertDoesNotThrow(() -> Node.newNode(raw));
+    }
+
     @ParameterizedTest
     @MethodSource("getTagNameTests")
     void testTagNameRegex(String tag, boolean valid) {
