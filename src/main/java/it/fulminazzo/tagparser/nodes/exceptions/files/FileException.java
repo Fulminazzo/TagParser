@@ -1,6 +1,7 @@
 package it.fulminazzo.tagparser.nodes.exceptions.files;
 
 import it.fulminazzo.tagparser.nodes.exceptions.NodeException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -15,7 +16,7 @@ public abstract class FileException extends NodeException {
      * @param message the message
      * @param file    the file
      */
-    public FileException(String message, File file) {
+    public FileException(@NotNull String message, @NotNull File file) {
         super(message.replace("%file%", file.getAbsolutePath()));
     }
 }

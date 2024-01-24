@@ -1,5 +1,7 @@
 package it.fulminazzo.tagparser.nodes.exceptions.files;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 
 /**
@@ -12,7 +14,7 @@ public class FileIsDirectoryException extends FileException {
      *
      * @param file the file
      */
-    public FileIsDirectoryException(File file) {
+    public FileIsDirectoryException(@NotNull File file) {
         super("%file% is a directory", file);
     }
 }

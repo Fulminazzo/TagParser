@@ -7,6 +7,8 @@ import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import it.fulminazzo.tagparser.utils.StringUtils;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -29,8 +31,8 @@ import java.util.function.Predicate;
 @Getter
 public class Node {
     static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
-    protected final String tagName;
-    protected final Map<String, String> attributes;
+    protected final @NotNull String tagName;
+    protected final @NotNull Map<String, String> attributes;
     protected Node next;
 
     /**
@@ -38,7 +40,7 @@ public class Node {
      *
      * @param tagName the tag name
      */
-    Node(String tagName) {
+    Node(@NotNull String tagName) {
         if (!tagName.matches(TAG_NAME_REGEX))
             throw new NotValidTagNameException(tagName);
         this.tagName = tagName;
@@ -52,7 +54,7 @@ public class Node {
      * @param value the value
      * @return the attribute
      */
-    public Node setAttribute(String name, String value) {
+    public Node setAttribute(@NotNull String name, String value) {
         if (!name.matches(TAG_NAME_REGEX))
             throw new NotValidTagNameException(name);
         this.attributes.put(name, StringUtils.removeQuotes(value));
@@ -75,7 +77,7 @@ public class Node {
      * @param attributes the attributes
      * @return the attributes
      */
-    public Node setAttributes(String... attributes) {
+    public Node setAttributes(String @Nullable ... attributes) {
         if (attributes != null && attributes.length > 1)
             for (int i = 0; i < attributes.length; i += 2)
                 setAttribute(attributes[i], attributes[i + 1]);
@@ -88,7 +90,7 @@ public class Node {
      * @param attributes the attributes
      * @return the attributes
      */
-    public Node setAttributes(Map<String, String> attributes) {
+    public Node setAttributes(@Nullable Map<String, String> attributes) {
         this.attributes.clear();
         if (attributes != null) attributes.forEach(this::setAttribute);
         return this;
@@ -120,7 +122,7 @@ public class Node {
      * @param file the file
      * @return the node
      */
-    public Node addNext(File file) {
+    public Node addNext(@NotNull File file) {
         return addNext(Node.newNode(file));
     }
 
@@ -130,7 +132,7 @@ public class Node {
      * @param stream the stream
      * @return the node
      */
-    public Node addNext(InputStream stream) {
+    public Node addNext(@NotNull InputStream stream) {
         return addNext(Node.newNode(stream));
     }
 
@@ -162,7 +164,7 @@ public class Node {
      * @param predicate the predicate used to verify if the node should be removed or not
      * @return the node
      */
-    public Node removeNext(Predicate<Node> predicate) {
+    public Node removeNext(@NotNull Predicate<Node> predicate) {
         if (this.next == null) return this;
         if (predicate.test(this.next)) {
             this.next.removeNext(predicate);
@@ -187,7 +189,7 @@ public class Node {
      * @param file the file
      * @return the next
      */
-    public Node setNext(File file) {
+    public Node setNext(@NotNull File file) {
         return setNext(Node.newNode(file));
     }
 
@@ -197,7 +199,7 @@ public class Node {
      * @param stream the stream
      * @return the next
      */
-    public Node setNext(InputStream stream) {
+    public Node setNext(@NotNull InputStream stream) {
         return setNext(Node.newNode(stream));
     }
 
@@ -217,7 +219,7 @@ public class Node {
      *
      * @return the string
      */
-    public String toHTML() {
+    public @NotNull String toHTML() {
         final StringBuilder builder = new StringBuilder("<").append(tagName);
         if (!this.attributes.isEmpty())
             this.attributes.forEach((k, v) -> {
@@ -235,7 +237,7 @@ public class Node {
      *
      * @return the string
      */
-    public String toJSON() {
+    public @NotNull String toJSON() {
         final StringBuilder builder = new StringBuilder("{");
 
         Class<?> clazz = this.getClass();
@@ -281,7 +283,7 @@ public class Node {
      * @param node the node
      * @return the boolean
      */
-    public boolean equals(Node node) {
+    public boolean equals(@Nullable Node node) {
         if (node == null) return false;
         if (!this.tagName.equals(node.getTagName())) return false;
         if (!Objects.equals(this.next, node.getNext())) return false;
@@ -300,7 +302,7 @@ public class Node {
      * @param field the field
      * @return the string
      */
-    protected String printField(Field field) {
+    protected @NotNull String printField(@NotNull Field field) {
         final StringBuilder builder = new StringBuilder();
         try {
             builder.append(field.getName()).append(": ");
@@ -321,7 +323,7 @@ public class Node {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         final StringBuilder builder = new StringBuilder(this.getClass().getSimpleName() + " {");
 
         Class<?> clazz = this.getClass();
@@ -340,7 +342,7 @@ public class Node {
      * @param string the string
      * @return the node
      */
-    public static Node newNode(String string) {
+    public static Node newNode(@Nullable String string) {
         return string == null ? null : newNode(new ByteArrayInputStream(string.getBytes()));
     }
 
@@ -350,7 +352,7 @@ public class Node {
      * @param file the file
      * @return the node
      */
-    public static Node newNode(File file) {
+    public static @NotNull Node newNode(@NotNull File file) {
         try {
             if (file.isDirectory()) throw new FileIsDirectoryException(file);
             return newNode(new FileInputStream(file));
@@ -365,7 +367,7 @@ public class Node {
      * @param stream the stream
      * @return the node
      */
-    public static Node newNode(InputStream stream) {
+    public static @NotNull Node newNode(@NotNull InputStream stream) {
         return newNode(new StringBuilder(), stream, true);
     }
 
@@ -378,7 +380,7 @@ public class Node {
      * @param checkNext toggle this option to check for next elements
      * @return the node
      */
-    static Node newNode(final StringBuilder buffer, InputStream stream, boolean checkNext) {
+    static @NotNull Node newNode(final @NotNull StringBuilder buffer, @NotNull InputStream stream, boolean checkNext) {
         try {
             final Map<String, String> attributes = new LinkedHashMap<>();
 
@@ -474,7 +476,7 @@ public class Node {
         }
     }
 
-    private static char read(InputStream stream, int start, StringBuilder buffer, Predicate<Character> tester, Consumer<Character> read) throws IOException {
+    private static char read(@NotNull InputStream stream, int start, @NotNull StringBuilder buffer, @Nullable Predicate<Character> tester, @NotNull Consumer<Character> read) throws IOException {
         final StringBuilder commentBuffer = new StringBuilder(buffer.toString());
         if (start != 0) commentBuffer.append(start);
         boolean commented = false;

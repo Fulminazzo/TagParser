@@ -1,5 +1,7 @@
 package it.fulminazzo.tagparser.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * The type String utils.
  */
@@ -15,7 +17,7 @@ public class StringUtils {
      * @param string the string
      * @return the string
      */
-    public static String removeQuotes(String string) {
+    public static String removeQuotes(@Nullable String string) {
         if (string == null) return null;
         if (string.startsWith("'") && string.endsWith("'") ||
                 string.startsWith("\"") && string.endsWith("\""))

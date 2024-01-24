@@ -1,5 +1,7 @@
 package it.fulminazzo.tagparser.nodes.exceptions.files;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 
 /**
@@ -13,7 +15,7 @@ public class FileDoesNotExistException extends FileException {
      *
      * @param file the file
      */
-    public FileDoesNotExistException(File file) {
+    public FileDoesNotExistException(@NotNull File file) {
         super("%file% does not exist", file);
     }
 }

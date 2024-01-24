@@ -1,6 +1,7 @@
 package it.fulminazzo.tagparser.nodes;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,12 +28,12 @@ public class ContainerNode extends Node {
      *
      * @param tagName the tag name
      */
-    public ContainerNode(String tagName) {
+    public ContainerNode(@NotNull String tagName) {
         super(tagName);
     }
 
     @Override
-    public ContainerNode setAttribute(String name, String value) {
+    public ContainerNode setAttribute(@NotNull String name, String value) {
         return (ContainerNode) super.setAttribute(name, value);
     }
 
@@ -52,12 +53,12 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode addNext(File file) {
+    public ContainerNode addNext(@NotNull File file) {
         return (ContainerNode) super.addNext(file);
     }
 
     @Override
-    public ContainerNode addNext(InputStream stream) {
+    public ContainerNode addNext(@NotNull InputStream stream) {
         return (ContainerNode) super.addNext(stream);
     }
 
@@ -72,7 +73,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode removeNext(Predicate<Node> predicate) {
+    public ContainerNode removeNext(@NotNull Predicate<Node> predicate) {
         return (ContainerNode) super.removeNext(predicate);
     }
 
@@ -82,12 +83,12 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setNext(File file) {
+    public ContainerNode setNext(@NotNull File file) {
         return (ContainerNode) super.setNext(file);
     }
 
     @Override
-    public ContainerNode setNext(InputStream stream) {
+    public ContainerNode setNext(@NotNull InputStream stream) {
         return (ContainerNode) super.setNext(stream);
     }
 
@@ -102,7 +103,7 @@ public class ContainerNode extends Node {
      * @param text the text
      * @return the text
      */
-    public ContainerNode setText(String text) {
+    public @NotNull ContainerNode setText(String text) {
         this.text = text;
         return this;
     }
@@ -113,7 +114,7 @@ public class ContainerNode extends Node {
      * @param string the string
      * @return this node
      */
-    public ContainerNode addChild(String string) {
+    public @NotNull ContainerNode addChild(String string) {
         return addChild(Node.newNode(string));
     }
 
@@ -123,7 +124,7 @@ public class ContainerNode extends Node {
      * @param file the file
      * @return this node
      */
-    public ContainerNode addChild(File file) {
+    public @NotNull ContainerNode addChild(@NotNull File file) {
         return addChild(Node.newNode(file));
     }
 
@@ -133,7 +134,7 @@ public class ContainerNode extends Node {
      * @param stream the stream
      * @return this node
      */
-    public ContainerNode addChild(InputStream stream) {
+    public @NotNull ContainerNode addChild(@NotNull InputStream stream) {
         return addChild(Node.newNode(stream));
     }
 
@@ -143,7 +144,7 @@ public class ContainerNode extends Node {
      * @param child the child
      * @return this node
      */
-    public ContainerNode addChild(Node child) {
+    public @NotNull ContainerNode addChild(Node child) {
         if (this.child != null) this.child.addNext(child);
         else this.child = child;
         return this;
@@ -155,7 +156,7 @@ public class ContainerNode extends Node {
      * @param child the child
      * @return this node
      */
-    public ContainerNode removeChild(Node child) {
+    public @NotNull ContainerNode removeChild(Node child) {
         return removeChild(n -> n.equals(child));
     }
 
@@ -165,7 +166,7 @@ public class ContainerNode extends Node {
      * @param predicate the predicate used to verify if the node should be removed or not
      * @return this node
      */
-    public ContainerNode removeChild(Predicate<Node> predicate) {
+    public @NotNull ContainerNode removeChild(@NotNull Predicate<Node> predicate) {
         if (this.child == null) return this;
         if (predicate.test(this.child)) {
             this.child.removeNext(predicate);
@@ -180,7 +181,7 @@ public class ContainerNode extends Node {
      * @param string the string
      * @return the child
      */
-    public ContainerNode setChild(String string) {
+    public @NotNull ContainerNode setChild(String string) {
         return setChild(Node.newNode(string));
     }
 
@@ -190,7 +191,7 @@ public class ContainerNode extends Node {
      * @param file the file
      * @return the child
      */
-    public ContainerNode setChild(File file) {
+    public @NotNull ContainerNode setChild(@NotNull File file) {
         return setChild(Node.newNode(file));
     }
 
@@ -200,7 +201,7 @@ public class ContainerNode extends Node {
      * @param stream the stream
      * @return the child
      */
-    public ContainerNode setChild(InputStream stream) {
+    public @NotNull ContainerNode setChild(@NotNull InputStream stream) {
         return setChild(Node.newNode(stream));
     }
 
@@ -210,7 +211,7 @@ public class ContainerNode extends Node {
      * @param child the child
      * @return the child
      */
-    public ContainerNode setChild(Node child) {
+    public @NotNull ContainerNode setChild(Node child) {
         this.child = child;
         return this;
     }
@@ -230,7 +231,7 @@ public class ContainerNode extends Node {
      *
      * @return the children
      */
-    public List<Node> getChildren() {
+    public @NotNull List<Node> getChildren() {
         final List<Node> children = new LinkedList<>();
         Node c = child;
         while (c != null) {
@@ -241,7 +242,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public String toHTML() {
+    public @NotNull String toHTML() {
         final StringBuilder builder = new StringBuilder(super.toHTML());
         builder.setLength(builder.length() - 2);
         builder.append(">");
@@ -256,7 +257,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         final StringBuilder builder = new StringBuilder(this.getClass().getSimpleName() + " {");
 
         Class<?> clazz = this.getClass();

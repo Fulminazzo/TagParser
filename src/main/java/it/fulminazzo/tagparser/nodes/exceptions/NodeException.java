@@ -1,5 +1,7 @@
 package it.fulminazzo.tagparser.nodes.exceptions;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A general exception used in the {@link it.fulminazzo.tagparser.nodes.Node} class and derivatives.
  */
@@ -26,7 +28,7 @@ public class NodeException extends RuntimeException {
      *
      * @param exception the exception
      */
-    public NodeException(Exception exception) {
+    public NodeException(@NotNull Exception exception) {
         super(exception.getMessage());
         setStackTrace(exception.getStackTrace());
     }
