@@ -32,8 +32,8 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setAttribute(String key, String value) {
-        return (ContainerNode) super.setAttribute(key, value);
+    public ContainerNode setAttribute(String name, String value) {
+        return (ContainerNode) super.setAttribute(name, value);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class ContainerNode extends Node {
     /**
      * Remove a child node.
      *
-     * @param predicate the predicate used to verify if the child should be removed or not
+     * @param predicate the predicate used to verify if the node should be removed or not
      * @return this node
      */
     public ContainerNode removeChild(Predicate<Node> predicate) {
@@ -218,7 +218,7 @@ public class ContainerNode extends Node {
     /**
      * Gets the current number of children.
      *
-     * @return the int
+     * @return the children
      */
     public int countChildren() {
         if (this.child != null) return 1 + this.child.countNextNodes();
