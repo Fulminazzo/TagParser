@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class ByteValidator implements AttributeValidator {
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             if (!value.toLowerCase().endsWith("b")) throw new Exception();
             Byte.valueOf(value.substring(0, value.length() - 1));

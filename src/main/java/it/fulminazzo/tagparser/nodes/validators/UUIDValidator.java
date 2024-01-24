@@ -11,7 +11,7 @@ import java.util.UUID;
 public class UUIDValidator implements AttributeValidator {
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             UUID.fromString(value);
         } catch (Exception e) {

@@ -21,7 +21,7 @@ public class EnumValidator<T extends Enum<T>> implements AttributeValidator {
     }
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             Enum.valueOf(enumClass, value.toUpperCase());
         } catch (IllegalArgumentException e) {

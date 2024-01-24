@@ -1,6 +1,7 @@
 package it.fulminazzo.tagparser.nodes.validators;
 
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidAttributeException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A consumer that throws {@link NotValidAttributeException}
@@ -16,6 +17,6 @@ public interface AttributeValidator {
      * @param value the attribute value
      * @throws NotValidAttributeException the not valid attribute exception
      */
-    void validate(String name, String value) throws NotValidAttributeException;
+    void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException;
 
 }

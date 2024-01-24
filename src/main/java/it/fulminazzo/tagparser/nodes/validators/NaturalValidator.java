@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class NaturalValidator implements AttributeValidator {
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             if (Integer.parseInt(value) < 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {

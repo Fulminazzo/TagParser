@@ -19,7 +19,7 @@ public class NodeException extends RuntimeException {
      *
      * @param message the message
      */
-    public NodeException(String message) {
+    public NodeException(@NotNull String message) {
         super(message);
     }
 

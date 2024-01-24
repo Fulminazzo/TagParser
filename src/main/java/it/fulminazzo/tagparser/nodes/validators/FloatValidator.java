@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class FloatValidator extends DoubleValidator {
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             if (!value.toLowerCase().endsWith("f")) throw new Exception();
             Float.valueOf(value.substring(0, value.length() - 1));

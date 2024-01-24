@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class ShortValidator extends IntegerValidator {
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             if (!value.toLowerCase().endsWith("s")) throw new Exception();
             Short.valueOf(value.substring(0, value.length() - 1));

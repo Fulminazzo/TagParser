@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class DoubleValidator implements AttributeValidator {
 
     @Override
-    public void validate(String name, @NotNull String value) throws NotValidAttributeException {
+    public void validate(@NotNull String name, @NotNull String value) throws NotValidAttributeException {
         try {
             Double.valueOf(value);
         } catch (NumberFormatException ex) {
