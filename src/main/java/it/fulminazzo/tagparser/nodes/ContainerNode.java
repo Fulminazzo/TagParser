@@ -1,7 +1,6 @@
 package it.fulminazzo.tagparser.nodes;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.io.InputStream;
@@ -146,7 +145,12 @@ public class ContainerNode extends Node {
         final StringBuilder builder = new StringBuilder(super.toHTML());
         builder.setLength(builder.length() - 2);
         builder.append(">");
-        if (child != null) builder.append(child.toHTML());
+        if (text != null) builder.append(text);
+        Node child = this.child;
+        while (child != null) {
+            builder.append(child.toHTML());
+            child = child.getNext();
+        }
         builder.append("</").append(tagName).append(">");
         return builder.toString();
     }
