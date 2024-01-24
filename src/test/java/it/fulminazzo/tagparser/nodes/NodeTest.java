@@ -97,6 +97,20 @@ class NodeTest {
         }
     }
 
+    @Test
+    void testMultilineAttributes() {
+        final String raw = "<path class=\"line\" stroke-width=\"10\" stroke-linecap=\"round\" stroke-linejoin=\"round\"\n" +
+                "                          d=\"m 20 40 h 60 a 1 1 0 0 1 0 20 h -60 a 1 1 0 0 1 0 -40 h 30 v 70\"></path>";
+        Map<String, String> attributes = new LinkedHashMap<String, String>(){{
+            put("class", "line");
+            put("stroke-width", "10");
+            put("stroke-linecap", "round");
+            put("stroke-linejoin", "round");
+            put("d", "m 20 40 h 60 a 1 1 0 0 1 0 20 h -60 a 1 1 0 0 1 0 -40 h 30 v 70");
+        }};
+        assertEquals(attributes, Node.newNode(raw).getAttributes());
+    }
+
     @ParameterizedTest
     @MethodSource("getTagNameTests")
     void testTagNameRegex(String tag, boolean valid) {

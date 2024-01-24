@@ -258,23 +258,29 @@ public class Node {
                     if (read == openQuotes && buffer.charAt(buffer.length() - 1) != '\\') openQuotes = -1;
                     else if (buffer.length() == 0 && (read == '"' || read == '\'')) openQuotes = read;
                     else {
-                        if (read == '=') {
-                            key = buffer.toString();
-                            buffer.setLength(0);
-                        } else if (read == ' ' || read == '>') {
-                            String value = buffer.toString();
-                            if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
-                            if (key.isEmpty()) key = value;
-                            if (value.equals(key)) value = null;
-                            if (!key.isEmpty()) attributes.put(key, value);
-                            key = "";
-                            if (read == '>') {
-                                if (buffer.length() > 0)
-                                    isContainer = buffer.charAt(buffer.length() - 1) != '/';
-                                break;
+                        if (openQuotes == -1) {
+                            if (key.isEmpty() && ("" + (char) read).matches("[\n\t\r]")) continue;
+                            if (read == '=') {
+                                key = buffer.toString();
+                                buffer.setLength(0);
+                                continue;
+                            } else if (read == ' ' || read == '>') {
+                                String value = buffer.toString();
+                                if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
+                                if (key.isEmpty()) key = value;
+                                if (value.equals(key)) value = null;
+                                if (!key.isEmpty()) attributes.put(key, value);
+                                key = "";
+                                if (read == '>') {
+                                    if (buffer.length() > 0)
+                                        isContainer = buffer.charAt(buffer.length() - 1) != '/';
+                                    break;
+                                }
+                                buffer.setLength(0);
+                                continue;
                             }
-                            buffer.setLength(0);
-                        } else buffer.append((char) read);
+                        }
+                        if (read != '\n') buffer.append((char) read);
                     }
                 buffer.setLength(0);
             }
