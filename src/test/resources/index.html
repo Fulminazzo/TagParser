@@ -1,0 +1,37 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Hamburger Menus</title>
+        <link href="style.css" rel="stylesheet"/>
+        <script src="main.js" type="application/javascript"></script>
+    </head>
+    <body>
+        <div class="examples">
+            <p>Hello world</p>
+            <button class="button-one" aria-expanded="false">
+                <svg fill="var(--button-color)" class="hamburger" viewBox="0 0 100 100" width="250">
+                    <!-- rx: round corners -->
+                    <rect class="line top" x="10" y="25" width="80" height="10" rx="5"></rect>
+                    <rect class="line middle" x="10" y="45" width="80" height="10" rx="5"></rect>
+                    <rect class="line bottom" x="10" y="65" width="80" height="10" rx="5"></rect>
+                </svg>
+            </button>
+            <button class="button-two" aria-expanded="undefined">
+                <svg stroke="var(--button-color)" class="hamburger" viewBox="0 0 100 100" width="250">
+                    <line class="line top" x1="85" x2="15" y1="40" y2="40"
+                          stroke-width="10" stroke-linecap="round"
+                          stroke-dasharray="80" stroke-dashoffset="0"></line>
+                    <line class="line bottom" x1="15" x2="85" y1="60" y2="60"
+                          stroke-width="10" stroke-linecap="round"
+                          stroke-dasharray="80" stroke-dashoffset="0"></line>
+                </svg>
+            </button>
+            <button class="button-three" aria-expanded="false">
+                <svg stroke="var(--button-color)" fill="none" class="hamburger" viewBox="-10 -10 120 120" width="250">
+                    <path class="line" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"
+                          d="m 20 40 h 60 a 1 1 0 0 1 0 20 h -60 a 1 1 0 0 1 0 -40 h 30 v 70"></path>
+                </svg>
+            </button>
+        </div>
+    </body>
+</html>

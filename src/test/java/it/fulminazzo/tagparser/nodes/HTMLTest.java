@@ -1,0 +1,77 @@
+package it.fulminazzo.tagparser.nodes;
+
+import it.fulminazzo.yamlparser.utils.FileUtils;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class HTMLTest {
+
+    ContainerNode getSimpleHTML() {
+        return new ContainerNode("html")
+                .setAttribute("lang", "en")
+                .addChild(
+                        new ContainerNode("head")
+                                .addChild(new Node("meta").setAttribute("charset", "UTF-8"))
+                                .addChild(new ContainerNode("title").setText("Hamburger Menus"))
+                                .addChild(new Node("link").setAttributes("href", "style.css", "rel", "stylesheet"))
+                                .addChild(new ContainerNode("script").setAttributes("src", "main.js", "type", "application/javascript"))
+                )
+                .addChild(new ContainerNode("body").addChild(new ContainerNode("div").setAttributes("class", "examples")
+                                .addChild(new ContainerNode("p").setText("Hello world"))
+                                .addChild(
+                                        new ContainerNode("button").setAttributes("class", "button-one", "aria-expanded", "false")
+                                                .addChild(
+                                                        new ContainerNode("svg").setAttributes("fill", "var(--button-color)", "class", "hamburger", "viewBox", "0 0 100 100", "width", "250")
+                                                                .addChild(new ContainerNode("rect").setAttributes("class", "line top", "x", "10", "y", "25", "width", "80", "height", "10", "rx", "5"))
+                                                                .addChild(new ContainerNode("rect").setAttributes("class", "line middle", "x", "10", "y", "45", "width", "80", "height", "10", "rx", "5"))
+                                                                .addChild(new ContainerNode("rect").setAttributes("class", "line bottom", "x", "10", "y", "65", "width", "80", "height", "10", "rx", "5"))
+                                                )
+                                )
+                                .addChild(
+                                        new ContainerNode("button").setAttributes("class", "button-two", "aria-expanded", "undefined")
+                                                .addChild(
+                                                        new ContainerNode("svg").setAttributes("stroke", "var(--button-color)", "class", "hamburger", "viewBox", "0 0 100 100", "width", "250")
+                                                                .addChild(new ContainerNode("line").setAttributes("class", "line top", "x1", "85", "x2", "15", "y1", "40", "y2", "40", "stroke-width", "10", "stroke-linecap", "round", "stroke-dasharray", "80", "stroke-dashoffset", "0"))
+                                                                .addChild(new ContainerNode("line").setAttributes("class", "line bottom", "x1", "15", "x2", "85", "y1", "60", "y2", "60", "stroke-width", "10", "stroke-linecap", "round", "stroke-dasharray", "80", "stroke-dashoffset", "0"))
+                                                )
+                                )
+                                .addChild(
+                                        new ContainerNode("button").setAttributes("class", "button-three", "aria-expanded", "false")
+                                                .addChild(
+                                                        new ContainerNode("svg").setAttributes("stroke", "var(--button-color)", "fill", "none", "class", "hamburger", "viewBox", "-10 -10 120 120", "width", "250")
+                                                                .addChild(new ContainerNode("path").setAttributes("class", "line", "stroke-width", "10", "stroke-linecap", "round", "stroke-linejoin", "round", "d", "m 20 40 h 60 a 1 1 0 0 1 0 20 h -60 a 1 1 0 0 1 0 -40 h 30 v 70"))
+                                                )
+                                )
+                        ))
+                ;
+    }
+
+    @Test
+    void testHTMLOutput() throws IOException {
+        final String expected = FileUtils.readFileToString(new File(NodeTest.RESOURCES, "index.html"))
+                .replaceAll("[ \t\r\n]", "")
+                .replace("<!--rx:roundcorners-->", "");
+        final String html = getSimpleHTML().toHTML().replaceAll("[ \t\r\n]", "");
+        assertEquals(expected, html);
+    }
+
+    @Test
+    void testHTMLFileOutput() throws IOException {
+        File file = new File(NodeTest.RESOURCES, "index.html");
+        final String expected = FileUtils.readFileToString(file)
+                .replaceAll("[ \t\r\n]", "")
+                .replace("<!--rx:roundcorners-->", "");
+        final String html = Node.newNode(file).toHTML().replaceAll("[ \t\r\n]", "");
+        assertEquals(expected, html);
+    }
+
+    @Test
+    void testHTMLInput() {
+        final Node node = Node.newNode(new File(NodeTest.RESOURCES, "index.html"));
+        assertEquals(getSimpleHTML(), node);
+    }
+}
