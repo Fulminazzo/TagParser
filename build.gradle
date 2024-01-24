@@ -1,5 +1,7 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id 'io.freefair.lombok' version '8.4'
 }
 
 group = 'it.fulminazzo'
@@ -30,4 +32,37 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.delombokTask
+    archiveClassifier = 'sources'
+}
+
+tasks.register('javadocJar', Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://repo.fulminazzo.it/releases"
+            credentials {
+                username = System.getenv("REPO_USERNAME")
+                password = System.getenv("REPO_PASSWORD")
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
 }
