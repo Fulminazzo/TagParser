@@ -54,7 +54,7 @@ public class Node {
      * @param value the value
      * @return the attribute
      */
-    public Node setAttribute(@NotNull String name, String value) {
+    public Node setAttribute(@NotNull String name, @Nullable String value) {
         if (!name.matches(TAG_NAME_REGEX))
             throw new NotValidTagNameException(name);
         this.attributes.put(name, StringUtils.removeQuotes(value));
@@ -67,7 +67,7 @@ public class Node {
      * @param name the name
      * @return the attribute
      */
-    public String getAttribute(String name) {
+    public String getAttribute(@NotNull String name) {
         return this.attributes.get(name);
     }
 
@@ -112,7 +112,7 @@ public class Node {
      * @param string the string
      * @return the node
      */
-    public Node addNext(String string) {
+    public Node addNext(@NotNull String string) {
         return addNext(Node.newNode(string));
     }
 
@@ -142,7 +142,7 @@ public class Node {
      * @param next the next
      * @return the node
      */
-    public Node addNext(Node next) {
+    public Node addNext(@NotNull Node next) {
         if (this.next != null) this.next.addNext(next);
         else this.next = next;
         return this;
@@ -154,7 +154,7 @@ public class Node {
      * @param next the next
      * @return the node
      */
-    public Node removeNext(Node next) {
+    public Node removeNext(@NotNull Node next) {
         return removeNext(n -> n.equals(next));
     }
 
@@ -179,7 +179,7 @@ public class Node {
      * @param string the string
      * @return the next
      */
-    public Node setNext(String string) {
+    public Node setNext(@NotNull String string) {
         return setNext(Node.newNode(string));
     }
 
@@ -209,7 +209,7 @@ public class Node {
      * @param next the next
      * @return the next
      */
-    public Node setNext(Node next) {
+    public Node setNext(@Nullable Node next) {
         this.next = next;
         return this;
     }

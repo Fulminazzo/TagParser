@@ -2,6 +2,7 @@ package it.fulminazzo.tagparser.nodes;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.InputStream;
@@ -38,17 +39,17 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setAttributes(String... attributes) {
+    public ContainerNode setAttributes(String @Nullable ... attributes) {
         return (ContainerNode) super.setAttributes(attributes);
     }
 
     @Override
-    public ContainerNode setAttributes(Map<String, String> attributes) {
+    public ContainerNode setAttributes(@Nullable Map<String, String> attributes) {
         return (ContainerNode) super.setAttributes(attributes);
     }
 
     @Override
-    public ContainerNode addNext(String string) {
+    public ContainerNode addNext(@NotNull String string) {
         return (ContainerNode) super.addNext(string);
     }
 
@@ -63,12 +64,12 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode addNext(Node next) {
+    public ContainerNode addNext(@NotNull Node next) {
         return (ContainerNode) super.addNext(next);
     }
 
     @Override
-    public ContainerNode removeNext(Node next) {
+    public ContainerNode removeNext(@NotNull Node next) {
         return (ContainerNode) super.removeNext(next);
     }
 
@@ -78,7 +79,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setNext(String string) {
+    public ContainerNode setNext(@NotNull String string) {
         return (ContainerNode) super.setNext(string);
     }
 
@@ -93,7 +94,7 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setNext(Node next) {
+    public ContainerNode setNext(@Nullable Node next) {
         return (ContainerNode) super.setNext(next);
     }
 
@@ -103,7 +104,7 @@ public class ContainerNode extends Node {
      * @param text the text
      * @return the text
      */
-    public @NotNull ContainerNode setText(String text) {
+    public @NotNull ContainerNode setText(@Nullable String text) {
         this.text = text;
         return this;
     }
@@ -114,7 +115,7 @@ public class ContainerNode extends Node {
      * @param string the string
      * @return this node
      */
-    public @NotNull ContainerNode addChild(String string) {
+    public @NotNull ContainerNode addChild(@NotNull String string) {
         return addChild(Node.newNode(string));
     }
 
@@ -144,7 +145,7 @@ public class ContainerNode extends Node {
      * @param child the child
      * @return this node
      */
-    public @NotNull ContainerNode addChild(Node child) {
+    public @NotNull ContainerNode addChild(@NotNull Node child) {
         if (this.child != null) this.child.addNext(child);
         else this.child = child;
         return this;
@@ -156,7 +157,7 @@ public class ContainerNode extends Node {
      * @param child the child
      * @return this node
      */
-    public @NotNull ContainerNode removeChild(Node child) {
+    public @NotNull ContainerNode removeChild(@NotNull Node child) {
         return removeChild(n -> n.equals(child));
     }
 
@@ -181,7 +182,7 @@ public class ContainerNode extends Node {
      * @param string the string
      * @return the child
      */
-    public @NotNull ContainerNode setChild(String string) {
+    public @NotNull ContainerNode setChild(@NotNull String string) {
         return setChild(Node.newNode(string));
     }
 
@@ -211,7 +212,7 @@ public class ContainerNode extends Node {
      * @param child the child
      * @return the child
      */
-    public @NotNull ContainerNode setChild(Node child) {
+    public @NotNull ContainerNode setChild(@Nullable Node child) {
         this.child = child;
         return this;
     }
