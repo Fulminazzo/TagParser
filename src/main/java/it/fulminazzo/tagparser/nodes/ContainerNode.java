@@ -1,5 +1,6 @@
 package it.fulminazzo.tagparser.nodes;
 
+import it.fulminazzo.tagparser.utils.StringUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +23,8 @@ import java.util.function.Predicate;
  */
 @Getter
 public class ContainerNode extends Node {
-    protected Node child;
-    protected String text;
+    protected @Nullable Node child;
+    protected @Nullable String text;
 
     /**
      * Instantiates a new Container node.
@@ -106,7 +107,7 @@ public class ContainerNode extends Node {
      * @return the text
      */
     public @NotNull ContainerNode setText(@Nullable String text) {
-        this.text = text;
+        this.text = StringUtils.parseContent(text);
         return this;
     }
 
@@ -248,7 +249,7 @@ public class ContainerNode extends Node {
         final StringBuilder builder = new StringBuilder(super.toHTML());
         builder.setLength(builder.length() - 2);
         builder.append(">");
-        if (text != null) builder.append(text);
+        if (text != null) builder.append(StringUtils.unParseContent(text));
         Node child = this.child;
         while (child != null) {
             builder.append(child.toHTML());

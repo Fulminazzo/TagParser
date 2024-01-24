@@ -29,6 +29,14 @@ class ContainerNodeTest {
     }
 
     @Test
+    void testToHTMLText() {
+        final String raw = "<test>&#60;child/&#62;</test>";
+        final ContainerNode node = (ContainerNode) Node.newNode(raw);
+        assertEquals("<test>&lt;child/&gt;</test>", node.toHTML());
+        assertEquals("<child/>", node.getText());
+    }
+
+    @Test
     void testToJson() {
         Gson gson = new GsonBuilder().serializeNulls().create();
         final String expected = gson.toJson(node);
