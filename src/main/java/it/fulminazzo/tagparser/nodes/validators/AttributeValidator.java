@@ -13,7 +13,7 @@ public interface AttributeValidator {
      * If not, throw a not valid attribute exception.
      *
      * @param name the attribute name
-     * @param value     the attribute value
+     * @param value the attribute value
      * @throws NotValidAttributeException the not valid attribute exception
      */
     void validate(String name, String value) throws NotValidAttributeException;
