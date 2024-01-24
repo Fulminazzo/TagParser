@@ -24,9 +24,9 @@ import java.util.function.Predicate;
  * This node does not support any type of tag verification or content recognition.
  * It only supports attributes and does not require closing tags.
  * <p>
- * Example: &#60;img src="test.png" alt="This will be wrapped in a simple Node" />
+ * Example: &#60;img src="test.png" alt="This will be wrapped in a simple Node" /&#62;
  * <p>
- * NOTE: the ending /> is REQUIRED.
+ * NOTE: the ending /&#62; is REQUIRED.
  */
 @Getter
 public class Node {
