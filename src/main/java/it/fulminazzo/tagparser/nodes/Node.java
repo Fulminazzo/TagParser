@@ -1,20 +1,18 @@
 package it.fulminazzo.tagparser.nodes;
 
-import it.fulminazzo.tagparser.nodes.exceptions.*;
-import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
-import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
-import it.fulminazzo.tagparser.utils.StringUtils;
+import it.fulminazzo.tagparser.Attributable;
+import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -26,7 +24,7 @@ import java.util.function.Predicate;
  * NOTE: the ending /&#62; is REQUIRED.
  */
 @Getter
-public class Node {
+public class Node implements Attributable<Node> {
     public static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
     protected final @NotNull String tagName;
     protected final @NotNull Map<String, String> attributes;
@@ -42,59 +40,6 @@ public class Node {
             throw new NotValidTagNameException(tagName);
         this.tagName = tagName;
         this.attributes = new LinkedHashMap<>();
-    }
-
-    /**
-     * Sets attribute.
-     *
-     * @param name  the name
-     * @param value the value
-     * @return the attribute
-     */
-    @Deprecated
-    public Node setAttribute(@NotNull String name, @Nullable String value) {
-        if (!name.matches(TAG_NAME_REGEX))
-            throw new NotValidTagNameException(name);
-        this.attributes.put(name, StringUtils.removeQuotes(value));
-        return this;
-    }
-
-    /**
-     * Gets attribute.
-     *
-     * @param name the name
-     * @return the attribute
-     */
-    @Deprecated
-    public String getAttribute(@NotNull String name) {
-        return this.attributes.get(name);
-    }
-
-    /**
-     * Sets attributes.
-     *
-     * @param attributes the attributes
-     * @return the attributes
-     */
-    @Deprecated
-    public Node setAttributes(String @Nullable ... attributes) {
-        if (attributes != null && attributes.length > 1)
-            for (int i = 0; i < attributes.length; i += 2)
-                setAttribute(attributes[i], attributes[i + 1]);
-        return this;
-    }
-
-    /**
-     * Sets attributes.
-     *
-     * @param attributes the attributes
-     * @return the attributes
-     */
-    @Deprecated
-    public Node setAttributes(@Nullable Map<String, String> attributes) {
-        this.attributes.clear();
-        if (attributes != null) attributes.forEach(this::setAttribute);
-        return this;
     }
 
     /**
@@ -143,7 +88,7 @@ public class Node {
      * @param next the next
      * @return the node
      */
-    public Node addNext(@NotNull Node next) {
+    public Node addNext(@Nullable Node next) {
         if (this.next != null) this.next.addNext(next);
         else this.next = next;
         return this;
@@ -238,6 +183,7 @@ public class Node {
      *
      * @return the string
      */
+    @Deprecated
     public @NotNull String toJSON() {
         final StringBuilder builder = new StringBuilder("{");
 
@@ -343,45 +289,18 @@ public class Node {
      * @param string the string
      * @return the node
      */
-    public static @Nullable Node newNode(@Nullable String string) {
-        return newNode(string, null);
-    }
-
-    /**
-     * Creates a new node from the raw string.
-     *
-     * @param string the string
-     * @param rules the rules to use for validating the nodes
-     * @return the node
-     */
-    public static @Nullable Node newNode(@Nullable String string, NodeRules rules) {
-        return string == null ? null : newNode(new ByteArrayInputStream(string.getBytes()), rules);
-    }
-
-    /**
-     * Creates a new node from the given file.
-     *
-     * @param file the file
-     * @return the node
-     */
-    public static @NotNull Node newNode(@NotNull File file) {
-        return newNode(file, null);
+    public static @NotNull Node newNode(@NotNull String string) {
+        return new NodeBuilder(string).build();
     }
 
     /**
      * Creates a new node from the given file.
      *
      * @param file  the file
-     * @param rules the rules to use for validating the nodes
      * @return the node
      */
-    public static @NotNull Node newNode(@NotNull File file, NodeRules rules) {
-        try {
-            if (file.isDirectory()) throw new FileIsDirectoryException(file);
-            return newNode(new FileInputStream(file), rules);
-        } catch (FileNotFoundException e) {
-            throw new FileDoesNotExistException(file);
-        }
+    public static @NotNull Node newNode(@NotNull File file) {
+        return new NodeBuilder(file).build();
     }
 
     /**
@@ -391,162 +310,6 @@ public class Node {
      * @return the node
      */
     public static @NotNull Node newNode(@NotNull InputStream stream) {
-        return newNode(stream, null);
-    }
-
-    /**
-     * Creates a new node from the raw stream.
-     *
-     * @param stream the stream
-     * @param rules the rules to use for validating the nodes
-     * @return the node
-     */
-    public static @NotNull Node newNode(@NotNull InputStream stream, NodeRules rules) {
-        return newNode(new StringBuilder(), stream, true, rules);
-    }
-
-    /**
-     * Creates a new node from the raw stream.
-     * Uses buffer as the initial buffer.
-     *
-     * @param buffer    the buffer
-     * @param stream    the stream
-     * @param checkNext toggle this option to check for next elements
-     * @param rules the rules to use for validating the nodes
-     * @return the node
-     */
-    static @NotNull Node newNode(final @NotNull StringBuilder buffer, @NotNull InputStream stream, boolean checkNext, @Nullable NodeRules rules) {
-        try {
-            if (rules == null) rules = new NodeRules();
-            final Map<String, String> attributes = new LinkedHashMap<>();
-
-            // Read tag name from given stream.
-            int read = read(stream, 0, buffer, r -> buffer.indexOf("<") == -1 || (r != ' ' && r != '>'), r -> {
-                if (r.toString().matches("[\t\n\r]")) return;
-                if (r == '<' && buffer.toString().contains("<")) throw new NotValidTagNameException(buffer.toString());
-                buffer.append(r);
-            });
-            String tagName = buffer.toString();
-            if (tagName.endsWith(" ") || tagName.endsWith(">")) tagName = tagName.substring(0, tagName.length() - 1);
-            while (tagName.matches("[ \n\t\r]+.*")) tagName = tagName.substring(1);
-            if (tagName.isEmpty()) throw new EmptyNodeException();
-            tagName = tagName.substring(1);
-            final Node node;
-            boolean isContainer = true;
-            if (read == '>' && tagName.endsWith("/")) {
-                isContainer = false;
-                tagName = tagName.substring(0, tagName.length() - 1);
-            }
-            buffer.setLength(0);
-
-            if (read == ' ') {
-                String name = "";
-                int openQuotes = -1;
-                // Read attributes from given stream.
-                while ((read = stream.read()) != -1)
-                    if (read == openQuotes && buffer.charAt(buffer.length() - 1) != '\\') openQuotes = -1;
-                    else if (buffer.length() == 0 && (read == '"' || read == '\'')) openQuotes = read;
-                    else {
-                        if (openQuotes == -1) {
-                            if (name.isEmpty() && ("" + (char) read).matches("[\n\t\r]")) continue;
-                            if (read == '=') {
-                                name = buffer.toString();
-                                buffer.setLength(0);
-                                continue;
-                            } else if (read == ' ' || read == '>') {
-                                String value = buffer.toString();
-                                if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
-                                if (name.isEmpty()) name = value;
-                                if (value.equals(name)) value = null;
-                                if (!name.isEmpty()) attributes.put(name, value);
-                                name = "";
-                                if (read == '>') {
-                                    if (buffer.length() > 0)
-                                        isContainer = buffer.charAt(buffer.length() - 1) != '/';
-                                    break;
-                                }
-                                buffer.setLength(0);
-                                continue;
-                            }
-                        }
-                        if (read != '\n') buffer.append((char) read);
-                    }
-                buffer.setLength(0);
-            }
-
-            Boolean validateTag = rules.validateTag(tagName);
-            if (validateTag != null) isContainer = validateTag;
-
-            if (isContainer && !rules.isAllowingNotClosedTags())
-                throw new NotClosedTagsNotAllowedException(tagName);
-            else if (!isContainer && !rules.isAllowingClosingTags())
-                throw new ClosingTagsNotAllowedException(tagName);
-
-            if (!isContainer) node = new Node(tagName);
-            else node = new ContainerNode(tagName);
-
-            rules.validateAttributes(attributes);
-            node.setAttributes(attributes);
-
-            if (node instanceof ContainerNode) {
-                ContainerNode containerNode = (ContainerNode) node;
-                // Read contents from given stream.
-                final String end = "</" + tagName + ">";
-                @Nullable NodeRules finalRules = rules;
-                read(stream, read, buffer, r -> !buffer.toString().endsWith(end), r -> {
-                    if (r != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
-                        buffer.setLength(buffer.length() - 1);
-                        Node n = Node.newNode(new StringBuilder("<").append((char) r), stream, false, finalRules);
-                        containerNode.addChild(n);
-                    } else buffer.append((char) r);
-                });
-
-                String text = buffer.toString();
-                if (text.endsWith(end))
-                    text = text.substring(0, text.length() - end.length());
-                else throw new NodeException(String.format("Node \"%s\" not closed. Raw text: \"%s\"", tagName, text));
-
-                if (!text.trim().isEmpty()) {
-                    rules.validateContents(text);
-                    containerNode.setText(text);
-                }
-            }
-
-            // Check for other content to be added.
-            if (checkNext && stream.available() > 0)
-                try {
-                    node.setNext(Node.newNode(stream, rules));
-                } catch (EmptyNodeException ignored) {
-
-                }
-
-            return node;
-        } catch (IOException e) {
-            throw new NodeException(e);
-        }
-    }
-
-    private static char read(@NotNull InputStream stream, int start, @NotNull StringBuilder buffer, @Nullable Predicate<Character> tester, @NotNull Consumer<Character> read) throws IOException {
-        final StringBuilder commentBuffer = new StringBuilder(buffer.toString());
-        if (start != 0) commentBuffer.append(start);
-        boolean commented = false;
-        int r = 0;
-        while ((tester == null || tester.test((char) r)) && (r = stream.read()) != -1) {
-            commentBuffer.append((char) r);
-            if (commented) {
-                if (commentBuffer.toString().endsWith("-->")) {
-                    commentBuffer.setLength(0);
-                    commented = false;
-                }
-            } else {
-                if (commentBuffer.toString().endsWith("<!--")) {
-                    commentBuffer.setLength(0);
-                    commented = true;
-                    buffer.setLength(0);
-                } else read.accept((char) r);
-            }
-            if (commentBuffer.length() > 5) commentBuffer.delete(0, commentBuffer.length() - 5);
-        }
-        return (char) r;
+        return new NodeBuilder(stream).build();
     }
 }

@@ -3,7 +3,7 @@ package it.fulminazzo.tagparser.nodes.exceptions;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An exception thrown when {@link it.fulminazzo.tagparser.nodes.NodeRules#validateTag(String)} fails.
+ * An exception thrown when {@link it.fulminazzo.tagparser.nodes.NodeBuilder#validateTag(String)} fails.
  */
 public class NotValidTagException extends NodeException {
 

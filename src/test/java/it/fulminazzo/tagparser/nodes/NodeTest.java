@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class NodeTest {
-    protected static final File RESOURCES = new File("build/resources/test");
+public class NodeTest {
+    public static final File RESOURCES = new File("build/resources/test");
 
     static Object[][] getTagNameTests() {
         return new Object[][]{
