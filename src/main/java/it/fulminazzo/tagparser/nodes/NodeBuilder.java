@@ -362,7 +362,7 @@ public class NodeBuilder {
                 // Read contents from given stream.
                 final String end = "</" + tagName + ">";
                 read(0, r -> !buffer.toString().endsWith(end), (b, r) -> {
-                    if (r != '/' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
+                    if (r != '/' && r != '!' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
                         buffer.setLength(buffer.length() - 1);
                         Node n = new NodeBuilder(this)
                                 .setBuffer(new StringBuilder("<").append((char) r))
