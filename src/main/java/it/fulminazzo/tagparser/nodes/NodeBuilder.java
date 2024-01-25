@@ -22,17 +22,47 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class NodeBuilder {
-    //TODO: Create specific documentation for each field
+    /**
+     * If enabled, every tag will be accepted.
+     * <p>
+     * If disabled, only the tags specified in {@link #validTags} will be accepted (only if not empty).
+     */
     @Getter
     protected boolean allowingGeneralTags;
+    /**
+     * If enabled, tags like &lt;tag&gt;&lt;/tag&gt; will be accepted.
+     * <p>
+     * If disabled, tags like &lt;tag&gt;&lt;/tag&gt; will not be accepted.
+     */
     @Getter
     protected boolean allowingClosingTags;
+    /**
+     * If enabled, tags like &lt;tag/&gt; will be accepted.
+     * <p>
+     * If disabled, tags like &lt;tag/&gt; will not be accepted.
+     */
     @Getter
     protected boolean allowingNotClosedTags;
+    /**
+     * If enabled and the stream is not ended,
+     * a new NodeBuilder similar to this will be created to retrieve another node if possible.
+     * <p>
+     * If disabled, will not check if another node is available.
+     */
     @Getter
     protected boolean checkingNext;
+    /**
+     * Specify a list of all the valid tags and specify true for closed tags or false for closing tags.
+     */
     protected final @NotNull Map<String, Boolean> validTags;
+    /**
+     * Specify a list of all the required attributes with each {@link AttributeValidator}.
+     * Use null for no validation.
+     */
     protected final @NotNull Map<String, AttributeValidator> requiredAttributes;
+    /**
+     * A regular expression to verify the validity of the contents.
+     */
     protected @Nullable String contentsRegex;
 
     protected @Nullable StringBuilder buffer;
