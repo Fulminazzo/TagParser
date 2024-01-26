@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -48,6 +49,35 @@ public class HTMLTest {
                                 )
                         ))
                 ;
+    }
+
+    @Test
+    void testNodesFromName() {
+        final Node node = getSimpleHTML();
+        final Set<Node> nodes = node.getNodes("svg");
+        assertEquals(3, nodes.size());
+    }
+
+    @Test
+    void testNodesFromPredicate() {
+        final Node node = getSimpleHTML();
+        final Set<Node> nodes = node.getNodes(n -> n.getTagName().equals("button"));
+        assertEquals(3, nodes.size());
+    }
+
+    @Test
+    void testNodeFromName() {
+        final Node node = getSimpleHTML();
+        assertEquals(new Node("link").setAttributes("href", "style.css", "rel", "stylesheet")
+                        .addNext(new ContainerNode("script").setAttributes("src", "main.js", "type", "application/javascript")),
+                node.getNode("link"));
+    }
+
+    @Test
+    void testNodeFromPredicate() {
+        final Node node = getSimpleHTML();
+        assertEquals(new ContainerNode("path").setAttributes("class", "line", "stroke-width", "10", "stroke-linecap", "round", "stroke-linejoin", "round", "d", "m 20 40 h 60 a 1 1 0 0 1 0 20 h -60 a 1 1 0 0 1 0 -40 h 30 v 70"),
+                node.getNode(n -> n.getTagName().equals("path")));
     }
 
     @Test

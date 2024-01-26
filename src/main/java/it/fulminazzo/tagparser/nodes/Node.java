@@ -11,9 +11,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -41,6 +39,56 @@ public class Node implements Attributable<Node>, Serializable {
             throw new NotValidTagNameException(tagName);
         this.tagName = tagName;
         this.attributes = new LinkedHashMap<>();
+    }
+
+    /**
+     * Recursively get all the nodes with the specified tag name. Uses {@link #getNodes(Predicate)}.
+     *
+     * @param tagName the tag name
+     * @return the nodes
+     */
+    public @NotNull Set<Node> getNodes(@NotNull final String tagName) {
+        return getNodes(n -> n.getTagName().equals(tagName));
+    }
+
+    /**
+     * Recursively get all the nodes that pass a test from the given {@link Predicate} function.
+     *
+     * @param validator the validator
+     * @return the nodes
+     */
+    public @NotNull Set<Node> getNodes(@NotNull final Predicate<? super Node> validator) {
+        final Set<Node> set = new LinkedHashSet<>();
+        if (validator.test(this)) set.add(this);
+        if (this.next != null) {
+            if (validator.test(this.next)) set.add(this.next);
+            set.addAll(this.next.getNodes(validator));
+        }
+        return set;
+    }
+
+    /**
+     * Recursively get a node from its tag name. Uses {@link #getNode(Predicate)}.
+     *
+     * @param tagName the tag name
+     * @return the node
+     */
+    public @Nullable Node getNode(@NotNull final String tagName) {
+        return getNode(n -> n.getTagName().equals(tagName));
+    }
+
+    /**
+     * Recursively get a node using a {@link Predicate} function to validate the node.
+     *
+     * @param validator the validator
+     * @return the node
+     */
+    public @Nullable Node getNode(@NotNull final Predicate<? super Node> validator) {
+        if (validator.test(this)) return this;
+        if (this.next != null)
+            if (validator.test(this.next)) return this.next;
+            else return this.next.getNode(validator);
+        return null;
     }
 
     /**
@@ -252,7 +300,7 @@ public class Node implements Attributable<Node>, Serializable {
     /**
      * Creates a new node from the given file.
      *
-     * @param file  the file
+     * @param file the file
      * @return the node
      */
     public static @NotNull Node newNode(@NotNull File file) {

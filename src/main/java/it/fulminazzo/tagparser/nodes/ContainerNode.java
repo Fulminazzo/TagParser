@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -34,6 +31,26 @@ public class ContainerNode extends Node {
      */
     public ContainerNode(@NotNull String tagName) {
         super(tagName);
+    }
+
+    @Override
+    public @NotNull Set<Node> getNodes(@NotNull Predicate<? super Node> validator) {
+        final Set<Node> set = super.getNodes(validator);
+        if (this.child != null) {
+            if (validator.test(this.child)) set.add(this.child);
+            set.addAll(this.child.getNodes(validator));
+        }
+        return set;
+    }
+
+    @Override
+    public @Nullable Node getNode(@NotNull Predicate<? super Node> validator) {
+        Node result = super.getNode(validator);
+        if (result != null) return result;
+        if (this.child != null)
+            if (validator.test(this.child)) return this.child;
+            else return child.getNode(validator);
+        return null;
     }
 
     @Override
