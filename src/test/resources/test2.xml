@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+    <name>Alex</name>
+    <age>10</age>
+    <access-granted>true</access-granted>
+    <researches>
+        <!-- RELEVANT -->
+        <name>Brain Surgery</name>
+        <!-- RELEVANT -->
+        <!-- RELEVANT -->
+        <name>Cardiovascular system</name>
+        <!-- RELEVANT -->
+    </researches>
+</node>
