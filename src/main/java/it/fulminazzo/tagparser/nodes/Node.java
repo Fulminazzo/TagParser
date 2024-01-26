@@ -2,6 +2,7 @@ package it.fulminazzo.tagparser.nodes;
 
 import it.fulminazzo.tagparser.Attributable;
 import it.fulminazzo.tagparser.nodes.exceptions.NotValidTagNameException;
+import it.fulminazzo.tagparser.serializables.Serializable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,7 @@ import java.util.function.Predicate;
  * NOTE: the ending /&#62; is REQUIRED.
  */
 @Getter
-public class Node implements Attributable<Node> {
+public class Node implements Attributable<Node>, Serializable {
     public static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
     protected final @NotNull String tagName;
     protected final @NotNull Map<String, String> attributes;
@@ -176,52 +177,6 @@ public class Node implements Attributable<Node> {
                         .append("\"");
             });
         return builder.append("/>").toString();
-    }
-
-    /**
-     * Converts the current node in a JSON format.
-     *
-     * @return the string
-     */
-    @Deprecated
-    public @NotNull String toJSON() {
-        final StringBuilder builder = new StringBuilder("{");
-
-        Class<?> clazz = this.getClass();
-        while (clazz != Object.class) {
-            for (Field field : clazz.getDeclaredFields())
-                if (!Modifier.isStatic(field.getModifiers())) {
-                    if (builder.length() != 1) builder.append(",");
-                    builder.append("\"").append(field.getName()).append("\":");
-                    try {
-                        field.setAccessible(true);
-                        Object value = field.get(this);
-                        if (value instanceof Map) {
-                            builder.append("{");
-                            Map<?, ?> obj = (Map<?, ?>) value;
-                            obj.forEach((k, v) -> {
-                                if (builder.charAt(builder.length() - 1) != '{') builder.append(",");
-                                if (k == null) return;
-                                builder.append("\"").append(k).append("\":");
-                                if (v != null) builder.append("\"")
-                                        .append(v.toString().replace("\"", "\\\""))
-                                        .append("\"");
-                                else builder.append("null");
-                            });
-                            builder.append("}");
-                        } else {
-                            if (value instanceof String) builder.append("\"");
-                            if (value instanceof Node) builder.append(((Node) value).toJSON());
-                            else builder.append(value);
-                            if (value instanceof String) builder.append("\"");
-                        }
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            clazz = clazz.getSuperclass();
-        }
-        return builder.append("}").toString();
     }
 
     /**
