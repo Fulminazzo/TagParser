@@ -52,52 +52,52 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode addNext(@NotNull String string) {
+    public @NotNull ContainerNode addNext(@NotNull String string) {
         return (ContainerNode) super.addNext(string);
     }
 
     @Override
-    public ContainerNode addNext(@NotNull File file) {
+    public @NotNull ContainerNode addNext(@NotNull File file) {
         return (ContainerNode) super.addNext(file);
     }
 
     @Override
-    public ContainerNode addNext(@NotNull InputStream stream) {
+    public @NotNull ContainerNode addNext(@NotNull InputStream stream) {
         return (ContainerNode) super.addNext(stream);
     }
 
     @Override
-    public ContainerNode addNext(@Nullable Node next) {
+    public @NotNull ContainerNode addNext(@Nullable Node next) {
         return (ContainerNode) super.addNext(next);
     }
 
     @Override
-    public ContainerNode removeNext(@NotNull Node next) {
+    public @NotNull ContainerNode removeNext(@NotNull Node next) {
         return (ContainerNode) super.removeNext(next);
     }
 
     @Override
-    public ContainerNode removeNext(@NotNull Predicate<Node> predicate) {
+    public @NotNull ContainerNode removeNext(@NotNull Predicate<Node> predicate) {
         return (ContainerNode) super.removeNext(predicate);
     }
 
     @Override
-    public ContainerNode setNext(@NotNull String string) {
+    public @NotNull ContainerNode setNext(@NotNull String string) {
         return (ContainerNode) super.setNext(string);
     }
 
     @Override
-    public ContainerNode setNext(@NotNull File file) {
+    public @NotNull ContainerNode setNext(@NotNull File file) {
         return (ContainerNode) super.setNext(file);
     }
 
     @Override
-    public ContainerNode setNext(@NotNull InputStream stream) {
+    public @NotNull ContainerNode setNext(@NotNull InputStream stream) {
         return (ContainerNode) super.setNext(stream);
     }
 
     @Override
-    public ContainerNode setNext(@Nullable Node next) {
+    public @NotNull ContainerNode setNext(@Nullable Node next) {
         return (ContainerNode) super.setNext(next);
     }
 

@@ -59,7 +59,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param string the string
      * @return the node
      */
-    public Node addNext(@NotNull String string) {
+    public @NotNull Node addNext(@NotNull String string) {
         return addNext(Node.newNode(string));
     }
 
@@ -69,7 +69,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param file the file
      * @return the node
      */
-    public Node addNext(@NotNull File file) {
+    public @NotNull Node addNext(@NotNull File file) {
         return addNext(Node.newNode(file));
     }
 
@@ -79,7 +79,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param stream the stream
      * @return the node
      */
-    public Node addNext(@NotNull InputStream stream) {
+    public @NotNull Node addNext(@NotNull InputStream stream) {
         return addNext(Node.newNode(stream));
     }
 
@@ -89,7 +89,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param next the next
      * @return the node
      */
-    public Node addNext(@Nullable Node next) {
+    public @NotNull Node addNext(@Nullable Node next) {
         if (this.next != null) this.next.addNext(next);
         else this.next = next;
         return this;
@@ -101,7 +101,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param next the next
      * @return the node
      */
-    public Node removeNext(@NotNull Node next) {
+    public @NotNull Node removeNext(@NotNull Node next) {
         return removeNext(n -> n.equals(next));
     }
 
@@ -111,7 +111,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param predicate the predicate used to verify if the node should be removed or not
      * @return the node
      */
-    public Node removeNext(@NotNull Predicate<Node> predicate) {
+    public @NotNull Node removeNext(@NotNull Predicate<Node> predicate) {
         if (this.next == null) return this;
         if (predicate.test(this.next)) {
             this.next.removeNext(predicate);
@@ -126,7 +126,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param string the string
      * @return the next
      */
-    public Node setNext(@NotNull String string) {
+    public @NotNull Node setNext(@NotNull String string) {
         return setNext(Node.newNode(string));
     }
 
@@ -136,7 +136,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param file the file
      * @return the next
      */
-    public Node setNext(@NotNull File file) {
+    public @NotNull Node setNext(@NotNull File file) {
         return setNext(Node.newNode(file));
     }
 
@@ -146,7 +146,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param stream the stream
      * @return the next
      */
-    public Node setNext(@NotNull InputStream stream) {
+    public @NotNull Node setNext(@NotNull InputStream stream) {
         return setNext(Node.newNode(stream));
     }
 
@@ -156,7 +156,7 @@ public class Node implements Attributable<Node>, Serializable {
      * @param next the next
      * @return the next
      */
-    public Node setNext(@Nullable Node next) {
+    public @NotNull Node setNext(@Nullable Node next) {
         this.next = next;
         return this;
     }
@@ -166,6 +166,7 @@ public class Node implements Attributable<Node>, Serializable {
      *
      * @return the string
      */
+    @Override
     public @NotNull String toHTML() {
         final StringBuilder builder = new StringBuilder("<").append(tagName);
         if (!this.attributes.isEmpty())
