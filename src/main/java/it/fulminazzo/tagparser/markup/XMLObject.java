@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
+/**
+ * An object to load, handle and dump XML files.
+ */
 @SuppressWarnings("UnusedReturnValue")
 public class XMLObject implements Serializable, Attributable<XMLObject>, INodeObject {
     @Getter
@@ -29,36 +32,75 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
         this.prologAttributes = new LinkedHashMap<>();
     }
 
+    /**
+     * Instantiates a new XML object.
+     *
+     * @param string the string
+     */
     public XMLObject(@NotNull String string) {
         this();
         setRoot(string);
     }
 
+    /**
+     * Instantiates a new XML object.
+     *
+     * @param file the file
+     */
     public XMLObject(@NotNull File file) {
         this();
         setRoot(file);
     }
 
-    public XMLObject(InputStream stream) {
+    /**
+     * Instantiates a new XML object.
+     *
+     * @param stream the stream
+     */
+    public XMLObject(@NotNull InputStream stream) {
         this();
         setRoot(stream);
     }
 
-    public @Nullable XMLObject setRoot(@NotNull String string) {
+    /**
+     * Set the root node from string.
+     *
+     * @param string the string
+     * @return the root
+     */
+    public @NotNull XMLObject setRoot(@NotNull String string) {
         this.prologAttributes.clear();
         return setRoot(new XMLBuilder(this).from(string).build());
     }
-    
-    public @Nullable XMLObject setRoot(@NotNull File file) {
+
+    /**
+     * Set the root node from file.
+     *
+     * @param file the file
+     * @return the root
+     */
+    public @NotNull XMLObject setRoot(@NotNull File file) {
         this.prologAttributes.clear();
         return setRoot(new XMLBuilder(this).from(file).build());
     }
-    
-    public @Nullable XMLObject setRoot(InputStream stream) {
+
+    /**
+     * Set the root node from stream.
+     *
+     * @param stream the stream
+     * @return the root
+     */
+    public @NotNull XMLObject setRoot(@NotNull InputStream stream) {
         this.prologAttributes.clear();
         return setRoot(new XMLBuilder(this).from(stream).build());
     }
-    
+
+    /**
+     * Set the root node from the given node.
+     *
+     * @param node the node
+     * @return the root
+     */
     public @NotNull XMLObject setRoot(Node node) {
         this.root = node;
         return this;
@@ -70,7 +112,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
     }
 
     @Override
-    public void write(final OutputStream stream) {
+    public void write(final @NotNull OutputStream stream) {
         if (documentType != null)
             try {
                 stream.write("<?".getBytes());
@@ -127,6 +169,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
         public @NotNull NodeBuilder allowClosingTags() {
             return this;
         }
+
         /**
          * Disallow closing tags.
          *
