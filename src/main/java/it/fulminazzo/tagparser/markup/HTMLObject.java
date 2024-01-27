@@ -33,7 +33,7 @@ public class HTMLObject implements Serializable, INodeObject {
         setRoot(file);
     }
 
-    public HTMLObject(InputStream stream) {
+    public HTMLObject(@NotNull InputStream stream) {
         setRoot(stream);
     }
 
@@ -45,7 +45,7 @@ public class HTMLObject implements Serializable, INodeObject {
         return setRoot(new HTMLBuilder().from(file).build());
     }
     
-    public @Nullable HTMLObject setRoot(InputStream stream) {
+    public @Nullable HTMLObject setRoot(@NotNull InputStream stream) {
         return setRoot(new HTMLBuilder().from(stream).build());
     }
     
@@ -76,7 +76,7 @@ public class HTMLObject implements Serializable, INodeObject {
     }
 
     @Override
-    public void write(final OutputStream stream) {
+    public void write(final @NotNull OutputStream stream) {
         try {
             stream.write("<!DOCTYPE html>".getBytes());
         } catch (IOException e) {
@@ -185,7 +185,7 @@ public class HTMLObject implements Serializable, INodeObject {
         }
 
         @Override
-        public NodeBuilder cloneBuilder() {
+        public @NotNull NodeBuilder cloneBuilder() {
             HTMLBuilder builder = new HTMLBuilder(this);
             builder.read = this.read;
             return builder;

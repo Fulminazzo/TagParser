@@ -525,7 +525,7 @@ public class NodeBuilder {
      *
      * @return the node builder
      */
-    public NodeBuilder cloneBuilder() {
+    public @NotNull NodeBuilder cloneBuilder() {
         return new NodeBuilder(this);
     }
 }

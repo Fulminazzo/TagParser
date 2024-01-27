@@ -54,17 +54,17 @@ public class ContainerNode extends Node {
     }
 
     @Override
-    public ContainerNode setAttribute(@NotNull String name, @Nullable String value) {
+    public @NotNull ContainerNode setAttribute(@NotNull String name, @Nullable String value) {
         return (ContainerNode) super.setAttribute(name, value);
     }
 
     @Override
-    public ContainerNode setAttributes(String @Nullable ... attributes) {
+    public @NotNull ContainerNode setAttributes(String @Nullable ... attributes) {
         return (ContainerNode) super.setAttributes(attributes);
     }
 
     @Override
-    public ContainerNode setAttributes(@Nullable Map<String, String> attributes) {
+    public @NotNull ContainerNode setAttributes(@Nullable Map<String, String> attributes) {
         return (ContainerNode) super.setAttributes(attributes);
     }
 

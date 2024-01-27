@@ -2,6 +2,7 @@ package it.fulminazzo.tagparser.markup;
 
 import it.fulminazzo.tagparser.markup.exceptions.WriteException;
 import it.fulminazzo.tagparser.nodes.Node;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
@@ -23,7 +24,7 @@ public interface INodeObject {
      *
      * @param file the file
      */
-    default void write(final File file) {
+    default void write(final @NotNull File file) {
         if (!file.getParentFile().isDirectory() && !file.mkdirs())
             throw new WriteException(String.format("Cannot create file parent directory: %s", file.getAbsolutePath()));
 
@@ -39,7 +40,7 @@ public interface INodeObject {
      *
      * @param stream the stream
      */
-    default void write(final OutputStream stream) {
+    default void write(final @NotNull OutputStream stream) {
         final Node root = getRoot();
         if (root == null) throw new WriteException("Cannot write null root node");
 

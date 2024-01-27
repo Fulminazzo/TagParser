@@ -23,7 +23,7 @@ public interface Attributable<T extends Attributable<?>> {
      * @param value the value
      * @return the attribute
      */
-    default T setAttribute(@NotNull String name, String value) {
+    default @NotNull T setAttribute(@NotNull String name, @Nullable String value) {
         if (!name.matches(Node.TAG_NAME_REGEX))
             throw new NotValidTagNameException(name);
         getAttributes().put(name, StringUtils.removeQuotes(value));
@@ -36,7 +36,7 @@ public interface Attributable<T extends Attributable<?>> {
      * @param name the name
      * @return the t
      */
-    default T unsetAttribute(@NotNull String name) {
+    default @NotNull T unsetAttribute(@NotNull String name) {
         getAttributes().remove(name);
         return (T) this;
     }
@@ -47,7 +47,7 @@ public interface Attributable<T extends Attributable<?>> {
      * @param name the name
      * @return the attribute
      */
-    default String getAttribute(String name) {
+    default @Nullable String getAttribute(@NotNull String name) {
         return getAttributes().get(name);
     }
 
@@ -57,7 +57,7 @@ public interface Attributable<T extends Attributable<?>> {
      * @param attributes the attributes
      * @return the attributes
      */
-    default T setAttributes(String @Nullable ... attributes) {
+    default @NotNull T setAttributes(String @Nullable ... attributes) {
         if (attributes != null && attributes.length > 1)
             for (int i = 0; i < attributes.length; i += 2)
                 setAttribute(attributes[i], attributes[i + 1]);
@@ -70,7 +70,7 @@ public interface Attributable<T extends Attributable<?>> {
      * @param attributes the attributes
      * @return the attributes
      */
-    default T setAttributes(@Nullable Map<String, String> attributes) {
+    default @NotNull T setAttributes(@Nullable Map<String, String> attributes) {
         getAttributes().clear();
         if (attributes != null) attributes.forEach(this::setAttribute);
         return (T) this;
@@ -81,5 +81,5 @@ public interface Attributable<T extends Attributable<?>> {
      *
      * @return the attributes
      */
-    Map<String, String> getAttributes();
+    @NotNull Map<String, String> getAttributes();
 }

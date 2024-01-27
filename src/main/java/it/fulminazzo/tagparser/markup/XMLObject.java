@@ -101,7 +101,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      * @param node the node
      * @return the root
      */
-    public @NotNull XMLObject setRoot(Node node) {
+    public @NotNull XMLObject setRoot(@Nullable Node node) {
         this.root = node;
         return this;
     }
@@ -149,7 +149,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
     }
 
     private static class XMLBuilder extends NodeBuilder {
-        private final XMLObject xmlObject;
+        private final @NotNull XMLObject xmlObject;
         private int read;
 
         private XMLBuilder(@NotNull XMLObject xmlObject) {
@@ -212,7 +212,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
         }
 
         @Override
-        public NodeBuilder cloneBuilder() {
+        public @NotNull NodeBuilder cloneBuilder() {
             XMLBuilder builder = new XMLBuilder(this, this.xmlObject);
             builder.read = this.read;
             return builder;
