@@ -54,6 +54,7 @@ public class NodeBuilder {
     /**
      * Specify a list of all the valid tags and specify true for closed tags or false for closing tags.
      */
+    @Getter
     protected final @NotNull Map<String, Boolean> validTags;
     /**
      * Specify a list of all the required attributes with each {@link AttributeValidator}.
@@ -364,7 +365,7 @@ public class NodeBuilder {
                 read(0, r -> !buffer.toString().endsWith(end), (b, r) -> {
                     if (r != '/' && r != '!' && buffer.length() > 0 && buffer.charAt(buffer.length() - 1) == '<') {
                         buffer.setLength(buffer.length() - 1);
-                        Node n = new NodeBuilder(this)
+                        Node n = cloneBuilder()
                                 .setBuffer(new StringBuilder("<").append((char) r))
                                 .uncheckNext()
                                 .build();
@@ -388,7 +389,7 @@ public class NodeBuilder {
             // Check for other content to be added.
             if (isCheckingNext() && stream.available() > 0)
                 try {
-                    node.setNext(new NodeBuilder(this).build());
+                    node.setNext(cloneBuilder().build());
                 } catch (EmptyNodeException ignored) {
 
                 }
@@ -399,6 +400,11 @@ public class NodeBuilder {
         }
     }
 
+    /**
+     * Create node from stream.
+     *
+     * @return the node
+     */
     protected @NotNull Node createNode() {
         try {
             if (stream == null) throw new FromNotSpecified();
@@ -512,5 +518,14 @@ public class NodeBuilder {
             if (commentBuffer.length() > 5) commentBuffer.delete(0, commentBuffer.length() - 5);
         }
         return (char) r;
+    }
+
+    /**
+     * Clone this builder.
+     *
+     * @return the node builder
+     */
+    public NodeBuilder cloneBuilder() {
+        return new NodeBuilder(this);
     }
 }

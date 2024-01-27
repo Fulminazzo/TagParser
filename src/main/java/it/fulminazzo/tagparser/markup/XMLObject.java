@@ -152,7 +152,14 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
         private final XMLObject xmlObject;
         private int read;
 
-        private XMLBuilder(XMLObject xmlObject) {
+        private XMLBuilder(@NotNull XMLObject xmlObject) {
+            this.xmlObject = xmlObject;
+            this.read = 0;
+            this.allowingClosingTags = false;
+        }
+
+        private XMLBuilder(@NotNull NodeBuilder builder, @NotNull XMLObject xmlObject) {
+            super(builder);
             this.xmlObject = xmlObject;
             this.read = 0;
             this.allowingClosingTags = false;
@@ -188,7 +195,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
         }
 
         @Override
-        protected char read(int start, @Nullable Predicate<Character> tester, @NotNull BiConsumer<StringBuilder, Character> re) throws IOException {
+        protected char read(int start, @Nullable Predicate<Character> tester, @NotNull BiConsumer<StringBuilder, Character> read) throws IOException {
             boolean checkPrologue = this.read == 0;
             return super.read(start, tester, (buffer, readChar) -> {
                 if (checkPrologue) {
@@ -199,9 +206,16 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
                         return;
                     }
                 }
-                read++;
-                re.accept(buffer, readChar);
+                this.read++;
+                read.accept(buffer, readChar);
             });
+        }
+
+        @Override
+        public NodeBuilder cloneBuilder() {
+            XMLBuilder builder = new XMLBuilder(this, this.xmlObject);
+            builder.read = this.read;
+            return builder;
         }
     }
 }

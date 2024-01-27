@@ -80,4 +80,9 @@ class NodeBuilderTest {
         final NodeBuilder builder = new NodeBuilder("<test>Content</test>").setContentsRegex("[A-Za-z0-9]+");
         assertDoesNotThrow(builder::build);
     }
+
+    @Test
+    void testFromNotSpecified() {
+        assertThrows(FromNotSpecified.class, () -> new NodeBuilder().build());
+    }
 }
