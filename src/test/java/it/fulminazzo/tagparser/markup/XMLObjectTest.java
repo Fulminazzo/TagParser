@@ -2,6 +2,7 @@ package it.fulminazzo.tagparser.markup;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.fulminazzo.tagparser.markup.exceptions.WriteException;
 import it.fulminazzo.tagparser.nodes.ContainerNode;
 import it.fulminazzo.tagparser.nodes.Node;
 import it.fulminazzo.tagparser.nodes.NodeTest;
@@ -14,10 +15,13 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class XMLObjectTest {
     private static final File file = new File(NodeTest.RESOURCES, "test1.xml");
@@ -61,7 +65,12 @@ class XMLObjectTest {
 
     @Test
     void testWriteFail() {
-        assertThrows(Exception.class, () -> xmlObject.write(file.getParentFile()));
+        final File file = mock(File.class);
+        final File parentFile = mock(File.class);
+        when(file.getParentFile()).thenReturn(parentFile);
+        when(parentFile.isDirectory()).thenReturn(false);
+        when(file.mkdirs()).thenReturn(false);
+        assertThrows(WriteException.class, () -> xmlObject.write(file));
     }
 
     @Test
