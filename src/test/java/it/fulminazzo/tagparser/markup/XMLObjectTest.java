@@ -15,7 +15,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -92,6 +91,21 @@ class XMLObjectTest {
         assertEquals(FileUtils.readFileToString(file)
                 .replaceAll("<!--[^\n]*-->", "")
                 .replaceAll("\n *", ""), xmlObject.toHTML());
+    }
+
+    @Test
+    void testToMap() {
+        final Map<?, ?> expected = new LinkedHashMap<Object, Object>(){{
+            put("node", new LinkedHashMap<Object, Object>(){{
+                put("name", "Alex");
+                put("age", "10");
+                put("access-granted", "true");
+                put("researches", new LinkedHashMap<Object, Object>(){{
+                    put("name", "Cardiovascular system");
+                }});
+            }});
+        }};
+        assertEquals(expected, new XMLObject(new File(NodeTest.RESOURCES, "test2.xml")).toMap());
     }
 
     @Test

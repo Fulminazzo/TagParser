@@ -13,6 +13,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,31 @@ class HTMLObjectTest {
     @Test
     void testHTMLObject() throws IOException {
         assertEquals(fileToString(), htmlObject.toHTML());
+    }
+
+    @Test
+    void testToMap() {
+        final Map<?, ?> expected = new LinkedHashMap<Object, Object>(){{
+            put("html", new LinkedHashMap<Object, Object>(){{
+                put("head", new LinkedHashMap<Object, Object>(){{
+                    put("meta", null);
+                    put("title", "Wave Function");
+                    put("link", null);
+                    put("script", null);
+                }});
+                put("body", new LinkedHashMap<Object, Object>(){{
+                    put("canvas", null);
+                    put("div", new LinkedHashMap<Object, Object>(){{
+                        put("div", new LinkedHashMap<Object, Object>(){{
+                            put("div", new LinkedHashMap<Object, Object>(){{
+                                put("p", "Loading session terminal...");
+                            }});
+                        }});
+                    }});
+                }});
+            }});
+        }};
+        assertEquals(expected, htmlObject.toMap());
     }
 
     @Test
