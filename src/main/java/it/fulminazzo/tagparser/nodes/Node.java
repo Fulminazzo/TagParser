@@ -214,6 +214,7 @@ public class Node implements Attributable<Node>, Serializable {
      *
      * @return the string
      */
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public @NotNull String toHTML() {
         final StringBuilder builder = new StringBuilder("<").append(tagName);

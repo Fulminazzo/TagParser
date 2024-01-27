@@ -20,52 +20,114 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
+/**
+ * An object to load, handle and dump HTML files.
+ */
 @Getter
 @SuppressWarnings("UnusedReturnValue")
 public class HTMLObject implements Serializable, INodeObject {
     private Node root;
 
+    /**
+     * Instantiates a new HTML object.
+     *
+     * @param string the string
+     */
     public HTMLObject(@NotNull String string) {
         setRoot(string);
     }
 
+    /**
+     * Instantiates a new HTML object.
+     *
+     * @param file the file
+     */
     public HTMLObject(@NotNull File file) {
         setRoot(file);
     }
 
+    /**
+     * Instantiates a new HTML object.
+     *
+     * @param stream the stream
+     */
     public HTMLObject(@NotNull InputStream stream) {
         setRoot(stream);
     }
 
+    /**
+     * Set the root node from string.
+     *
+     * @param string the string
+     * @return the root
+     */
     public @Nullable HTMLObject setRoot(@NotNull String string) {
         return setRoot(new HTMLBuilder().from(string).build());
     }
-    
+
+    /**
+     * Set the root node from file.
+     *
+     * @param file the file
+     * @return the root
+     */
     public @Nullable HTMLObject setRoot(@NotNull File file) {
         return setRoot(new HTMLBuilder().from(file).build());
     }
-    
+
+    /**
+     * Set the root node from stream.
+     *
+     * @param stream the stream
+     * @return the root
+     */
     public @Nullable HTMLObject setRoot(@NotNull InputStream stream) {
         return setRoot(new HTMLBuilder().from(stream).build());
     }
-    
-    public @NotNull HTMLObject setRoot(Node node) {
+
+    /**
+     * Set the root node from the given node.
+     *
+     * @param node the node
+     * @return the root
+     */
+    public @NotNull HTMLObject setRoot(@Nullable Node node) {
         this.root = node;
         return this;
     }
 
+    /**
+     * Get the head node.
+     *
+     * @return the head
+     */
     public @Nullable Node getHead() {
         return root == null ? null : root.getNode("head");
     }
 
+    /**
+     * Get the body node.
+     *
+     * @return the body
+     */
     public @Nullable Node getBody() {
         return root == null ? null : root.getNode("body");
     }
 
+    /**
+     * Get all the script nodes.
+     *
+     * @return the scripts
+     */
     public @NotNull Set<Node> getScripts() {
         return root == null ? new LinkedHashSet<>() : root.getNodes("script");
     }
 
+    /**
+     * Get all the link nodes with <i>rel=stylesheet</i>.
+     *
+     * @return the styles
+     */
     public @NotNull Set<Node> getStyles() {
         return root == null ? new LinkedHashSet<>() : root.getNodes(n -> {
             if (!n.getTagName().equalsIgnoreCase("link")) return false;
@@ -98,7 +160,8 @@ public class HTMLObject implements Serializable, INodeObject {
         /**
          * Instantiates a new HTML node.
          *
-         * @param tagName the tag name
+         * @param tagName   the tag name
+         * @param validTags the valid tags
          */
         public HTMLNode(@NotNull String tagName, Map<String, Boolean> validTags) {
             super(tagName);
