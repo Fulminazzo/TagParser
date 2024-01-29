@@ -11,7 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * An INodeObject is a type that contains only one {@link it.fulminazzo.tagparser.nodes.Node}: the root.
@@ -24,7 +27,7 @@ public interface INodeObject {
      *
      * @return the root
      */
-    Node getRoot();
+    Node getRootNode();
 
     /**
      * Convert the root node to a map of elements.
@@ -33,26 +36,36 @@ public interface INodeObject {
      * @return the map
      */
     default @NotNull Map<?, ?> toMap() {
-        return toMap(getRoot());
+        return toMap(getRootNode(), true);
     }
 
     /**
      * Convert the given node to a map of elements.
      * Duplicate nodes are NOT allowed.
      *
-     * @param node the node
+     * @param node      the node
+     * @param checkNext if true, will check and add the next node
      * @return the map
      */
-    default @NotNull Map<?, ?> toMap(@Nullable Node node) {
+    default @NotNull Map<?, ?> toMap(@Nullable Node node, boolean checkNext) {
         final Map<Object, Object> map = new LinkedHashMap<>();
         while (node != null) {
             final String tagName = node.getTagName();
             if (node instanceof ContainerNode) {
                 final ContainerNode containerNode = (ContainerNode) node;
-                if (containerNode.getChild() != null)
-                    map.put(tagName, toMap(containerNode.getChild()));
+                final List<Node> children = containerNode.getChildren();
+                final String childTag = children.stream().filter(Objects::nonNull)
+                        .map(Node::getTagName)
+                        .findFirst().orElse(null);
+                if (children.size() > 1 && childTag != null && children.stream().allMatch(c -> c.getTagName().equals(childTag)))
+                    map.put(tagName, children.stream()
+                            .map(c -> toMap(c, false).get(c.getTagName()))
+                            .collect(Collectors.toList()));
+                else if (containerNode.getChild() != null)
+                    map.put(tagName, toMap(containerNode.getChild(), true));
                 else map.put(tagName, containerNode.getText());
             } else map.put(tagName, null);
+            if (!checkNext) break;
             node = node.getNext();
         }
         return map;
@@ -80,7 +93,7 @@ public interface INodeObject {
      * @param stream the stream
      */
     default void write(final @NotNull OutputStream stream) {
-        final Node root = getRoot();
+        final Node root = getRootNode();
         if (root == null) throw new WriteException("Cannot write null root node");
 
         try {
