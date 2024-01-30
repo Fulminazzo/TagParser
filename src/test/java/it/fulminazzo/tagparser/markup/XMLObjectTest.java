@@ -15,6 +15,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -87,7 +88,7 @@ class XMLObjectTest {
         final XMLObject xmlObject = new XMLObject(file);
         assertEquals(documentType, xmlObject.getDocumentType());
         assertEquals(attributes, xmlObject.getAttributes());
-        assertEquals(rootNode, xmlObject.getRoot());
+        assertEquals(rootNode, xmlObject.getRootNode());
         assertEquals(FileUtils.readFileToString(file)
                 .replaceAll("<!--[^\n]*-->", "")
                 .replaceAll("\n *", ""), xmlObject.toHTML());
@@ -100,8 +101,9 @@ class XMLObjectTest {
                 put("name", "Alex");
                 put("age", "10");
                 put("access-granted", "true");
-                put("researches", new LinkedHashMap<Object, Object>(){{
-                    put("name", "Cardiovascular system");
+                put("researches", new ArrayList<Object>(){{
+                    add("Brain Surgery");
+                    add("Cardiovascular system");
                 }});
             }});
         }};

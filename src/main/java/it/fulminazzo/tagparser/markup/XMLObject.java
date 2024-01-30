@@ -26,7 +26,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
     private String documentType;
     private final @NotNull Map<String, String> prologAttributes;
     @Getter
-    private Node root;
+    private Node rootNode;
 
     private XMLObject() {
         this.prologAttributes = new LinkedHashMap<>();
@@ -39,7 +39,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      */
     public XMLObject(@NotNull String string) {
         this();
-        setRoot(string);
+        setRootNode(string);
     }
 
     /**
@@ -49,7 +49,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      */
     public XMLObject(@NotNull File file) {
         this();
-        setRoot(file);
+        setRootNode(file);
     }
 
     /**
@@ -59,7 +59,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      */
     public XMLObject(@NotNull InputStream stream) {
         this();
-        setRoot(stream);
+        setRootNode(stream);
     }
 
     /**
@@ -68,9 +68,9 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      * @param string the string
      * @return the root
      */
-    public @NotNull XMLObject setRoot(@NotNull String string) {
+    public @NotNull XMLObject setRootNode(@NotNull String string) {
         this.prologAttributes.clear();
-        return setRoot(new XMLBuilder(this).from(string).build());
+        return setRootNode(new XMLBuilder(this).from(string).build());
     }
 
     /**
@@ -79,9 +79,9 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      * @param file the file
      * @return the root
      */
-    public @NotNull XMLObject setRoot(@NotNull File file) {
+    public @NotNull XMLObject setRootNode(@NotNull File file) {
         this.prologAttributes.clear();
-        return setRoot(new XMLBuilder(this).from(file).build());
+        return setRootNode(new XMLBuilder(this).from(file).build());
     }
 
     /**
@@ -90,9 +90,9 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      * @param stream the stream
      * @return the root
      */
-    public @NotNull XMLObject setRoot(@NotNull InputStream stream) {
+    public @NotNull XMLObject setRootNode(@NotNull InputStream stream) {
         this.prologAttributes.clear();
-        return setRoot(new XMLBuilder(this).from(stream).build());
+        return setRootNode(new XMLBuilder(this).from(stream).build());
     }
 
     /**
@@ -101,8 +101,8 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
      * @param node the node
      * @return the root
      */
-    public @NotNull XMLObject setRoot(@Nullable Node node) {
-        this.root = node;
+    public @NotNull XMLObject setRootNode(@Nullable Node node) {
+        this.rootNode = node;
         return this;
     }
 
@@ -144,7 +144,7 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
             });
             output.append("?>");
         }
-        if (this.root != null) output.append(root.toHTML());
+        if (this.rootNode != null) output.append(rootNode.toHTML());
         return output.toString();
     }
 
