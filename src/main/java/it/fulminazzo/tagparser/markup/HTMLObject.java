@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 @Getter
 @SuppressWarnings("UnusedReturnValue")
 public class HTMLObject implements Serializable, INodeObject {
-    private Node root;
+    private Node rootNode;
 
     /**
      * Instantiates a new HTML object.
@@ -34,7 +34,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param string the string
      */
     public HTMLObject(@NotNull String string) {
-        setRoot(string);
+        setRootNode(string);
     }
 
     /**
@@ -43,7 +43,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param file the file
      */
     public HTMLObject(@NotNull File file) {
-        setRoot(file);
+        setRootNode(file);
     }
 
     /**
@@ -52,7 +52,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param stream the stream
      */
     public HTMLObject(@NotNull InputStream stream) {
-        setRoot(stream);
+        setRootNode(stream);
     }
 
     /**
@@ -61,8 +61,8 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param string the string
      * @return the root
      */
-    public @Nullable HTMLObject setRoot(@NotNull String string) {
-        return setRoot(new HTMLBuilder().from(string).build());
+    public @Nullable HTMLObject setRootNode(@NotNull String string) {
+        return setRootNode(new HTMLBuilder().from(string).build());
     }
 
     /**
@@ -71,8 +71,8 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param file the file
      * @return the root
      */
-    public @Nullable HTMLObject setRoot(@NotNull File file) {
-        return setRoot(new HTMLBuilder().from(file).build());
+    public @Nullable HTMLObject setRootNode(@NotNull File file) {
+        return setRootNode(new HTMLBuilder().from(file).build());
     }
 
     /**
@@ -81,8 +81,8 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param stream the stream
      * @return the root
      */
-    public @Nullable HTMLObject setRoot(@NotNull InputStream stream) {
-        return setRoot(new HTMLBuilder().from(stream).build());
+    public @Nullable HTMLObject setRootNode(@NotNull InputStream stream) {
+        return setRootNode(new HTMLBuilder().from(stream).build());
     }
 
     /**
@@ -91,8 +91,8 @@ public class HTMLObject implements Serializable, INodeObject {
      * @param node the node
      * @return the root
      */
-    public @NotNull HTMLObject setRoot(@Nullable Node node) {
-        this.root = node;
+    public @NotNull HTMLObject setRootNode(@Nullable Node node) {
+        this.rootNode = node;
         return this;
     }
 
@@ -102,7 +102,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @return the head
      */
     public @Nullable Node getHead() {
-        return root == null ? null : root.getNode("head");
+        return rootNode == null ? null : rootNode.getNode("head");
     }
 
     /**
@@ -111,7 +111,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @return the body
      */
     public @Nullable Node getBody() {
-        return root == null ? null : root.getNode("body");
+        return rootNode == null ? null : rootNode.getNode("body");
     }
 
     /**
@@ -120,7 +120,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @return the scripts
      */
     public @NotNull Set<Node> getScripts() {
-        return root == null ? new LinkedHashSet<>() : root.getNodes("script");
+        return rootNode == null ? new LinkedHashSet<>() : rootNode.getNodes("script");
     }
 
     /**
@@ -129,7 +129,7 @@ public class HTMLObject implements Serializable, INodeObject {
      * @return the styles
      */
     public @NotNull Set<Node> getStyles() {
-        return root == null ? new LinkedHashSet<>() : root.getNodes(n -> {
+        return rootNode == null ? new LinkedHashSet<>() : rootNode.getNodes(n -> {
             if (!n.getTagName().equalsIgnoreCase("link")) return false;
             final String rel = n.getAttribute("rel");
             if (rel == null) return false;
@@ -150,7 +150,7 @@ public class HTMLObject implements Serializable, INodeObject {
     @Override
     public @NotNull String toHTML() {
         final StringBuilder output = new StringBuilder("<!DOCTYPE html>");
-        if (this.root != null) output.append(root.toHTML());
+        if (this.rootNode != null) output.append(rootNode.toHTML());
         return output.toString();
     }
 

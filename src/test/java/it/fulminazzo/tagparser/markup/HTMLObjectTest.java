@@ -13,10 +13,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,31 +86,6 @@ class HTMLObjectTest {
     }
 
     @Test
-    void testToMap() {
-        final Map<?, ?> expected = new LinkedHashMap<Object, Object>(){{
-            put("html", new LinkedHashMap<Object, Object>(){{
-                put("head", new LinkedHashMap<Object, Object>(){{
-                    put("meta", null);
-                    put("title", "Wave Function");
-                    put("link", null);
-                    put("script", null);
-                }});
-                put("body", new LinkedHashMap<Object, Object>(){{
-                    put("canvas", null);
-                    put("div", new LinkedHashMap<Object, Object>(){{
-                        put("div", new LinkedHashMap<Object, Object>(){{
-                            put("div", new LinkedHashMap<Object, Object>(){{
-                                put("p", "Loading session terminal...");
-                            }});
-                        }});
-                    }});
-                }});
-            }});
-        }};
-        assertEquals(expected, htmlObject.toMap());
-    }
-
-    @Test
     void testHTMLObjectToJSON() {
         Gson gson = new GsonBuilder().serializeNulls().create();
         final String expected = gson.toJson(htmlObject);
@@ -131,5 +103,94 @@ class HTMLObjectTest {
                 .replaceAll("\n *", "")
                 .replace("linecap=\"round\" ", "linecap=\"round\"")
                 .replace("<!-- Wave Function Collapse Background -->", "");
+    }
+
+    @Test
+    void testToMap() {
+        final Map<?, ?> expected = new LinkedHashMap<Object, Object>(){{
+            put("html", new LinkedHashMap<Object, Object>(){{
+                put("head", new LinkedHashMap<Object, Object>(){{
+                    put("meta", null);
+                    put("title", "Wave Function");
+                    put("link", null);
+                    put("script", null);
+                }});
+                put("body", new LinkedHashMap<Object, Object>(){{
+                    put("canvas", null);
+                    put("div", Arrays.asList(
+                            new LinkedHashMap<Object, Object>(){{
+                                put("p", "Loading docker stats...");
+                            }},
+                            new LinkedHashMap<Object, Object>(){{
+                                put("p", "Loading docker compose logs...");
+                            }},
+                            Arrays.asList(
+                                new LinkedHashMap<Object, Object>(){{
+                                    put("h3", "Storage");
+                                    put("div", new LinkedHashMap<Object, Object>(){{
+                                        put("div", new LinkedHashMap<Object, Object>(){{
+                                            put("div", new LinkedHashMap<Object, Object>(){{
+                                                put("p", "0%");
+                                            }});
+                                        }});
+                                        put("svg", new LinkedHashMap<Object, Object>(){{
+                                            put("defs", new LinkedHashMap<Object, Object>(){{
+                                                put("linearGradient", Arrays.asList(null, null));
+                                            }});
+                                            put("circle", null);
+                                        }});
+                                    }});
+                                    put("p", "Info");
+                                }},
+                                new LinkedHashMap<Object, Object>(){{
+                                    put("h3", "Download");
+                                    put("div", new LinkedHashMap<Object, Object>(){{
+                                        put("div", new LinkedHashMap<Object, Object>(){{
+                                            put("div", new LinkedHashMap<Object, Object>(){{
+                                                put("p", "0%");
+                                            }});
+                                        }});
+                                        put("svg", new LinkedHashMap<Object, Object>(){{
+                                            put("defs", new LinkedHashMap<Object, Object>(){{
+                                                put("linearGradient", Arrays.asList(null, null));
+                                            }});
+                                            put("circle", null);
+                                        }});
+                                    }});
+                                    put("p", "Info");
+                                }},
+                                new LinkedHashMap<Object, Object>(){{
+                                    put("h3", "Upload");
+                                    put("div", new LinkedHashMap<Object, Object>(){{
+                                        put("div", new LinkedHashMap<Object, Object>(){{
+                                            put("div", new LinkedHashMap<Object, Object>(){{
+                                                put("p", "0%");
+                                            }});
+                                        }});
+                                        put("svg", new LinkedHashMap<Object, Object>(){{
+                                            put("defs", new LinkedHashMap<Object, Object>(){{
+                                                put("linearGradient", Arrays.asList(null, null));
+                                            }});
+                                            put("circle", null);
+                                        }});
+                                    }});
+                                    put("p", "Info");
+                                }}
+                            ),
+                            Arrays.asList(
+                                    new LinkedHashMap<Object, Object>(){{
+                                        put("button", new LinkedHashMap<Object, Object>(){{
+                                            put("p", "-");
+                                        }});
+                                    }},
+                                    new LinkedHashMap<Object, Object>(){{
+                                        put("p", "Loading session terminal...");
+                                    }}
+                            )
+                    ));
+                }});
+            }});
+        }};
+        assertEquals(expected, htmlObject.toMap());
     }
 }
