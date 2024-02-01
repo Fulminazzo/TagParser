@@ -26,7 +26,14 @@ import java.util.function.Predicate;
 @Getter
 @SuppressWarnings("UnusedReturnValue")
 public class HTMLObject implements Serializable, INodeObject {
-    private Node rootNode;
+    protected Node rootNode;
+
+    /**
+     * Instantiates a new Html object.
+     */
+    protected HTMLObject() {
+
+    }
 
     /**
      * Instantiates a new HTML object.
@@ -196,14 +203,25 @@ public class HTMLObject implements Serializable, INodeObject {
         }
     }
 
-    private static class HTMLBuilder extends NodeBuilder {
-        private int read;
+    /**
+     * The type Html builder.
+     */
+    protected static class HTMLBuilder extends NodeBuilder {
+        protected int read;
 
-        private HTMLBuilder() {
+        /**
+         * Instantiates a new Html builder.
+         */
+        protected HTMLBuilder() {
             setOptions();
         }
 
-        private HTMLBuilder(NodeBuilder builder) {
+        /**
+         * Instantiates a new Html builder.
+         *
+         * @param builder the builder
+         */
+        protected HTMLBuilder(NodeBuilder builder) {
             super(builder);
             setOptions();
         }

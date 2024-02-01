@@ -23,12 +23,15 @@ import java.util.function.Predicate;
 @SuppressWarnings("UnusedReturnValue")
 public class XMLObject implements Serializable, Attributable<XMLObject>, INodeObject {
     @Getter
-    private String documentType;
-    private final @NotNull Map<String, String> prologAttributes;
+    protected String documentType;
+    protected final @NotNull Map<String, String> prologAttributes;
     @Getter
-    private Node rootNode;
+    protected Node rootNode;
 
-    private XMLObject() {
+    /**
+     * Instantiates a new Xml object.
+     */
+    protected XMLObject() {
         this.prologAttributes = new LinkedHashMap<>();
     }
 
@@ -148,17 +151,31 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
         return output.toString();
     }
 
-    private static class XMLBuilder extends NodeBuilder {
-        private final @NotNull XMLObject xmlObject;
-        private int read;
+    /**
+     * The type Xml builder.
+     */
+    protected static class XMLBuilder extends NodeBuilder {
+        protected final @NotNull XMLObject xmlObject;
+        protected int read;
 
-        private XMLBuilder(@NotNull XMLObject xmlObject) {
+        /**
+         * Instantiates a new Xml builder.
+         *
+         * @param xmlObject the xml object
+         */
+        protected XMLBuilder(@NotNull XMLObject xmlObject) {
             this.xmlObject = xmlObject;
             this.read = 0;
             this.allowingClosingTags = false;
         }
 
-        private XMLBuilder(@NotNull NodeBuilder builder, @NotNull XMLObject xmlObject) {
+        /**
+         * Instantiates a new Xml builder.
+         *
+         * @param builder   the builder
+         * @param xmlObject the xml object
+         */
+        protected XMLBuilder(@NotNull NodeBuilder builder, @NotNull XMLObject xmlObject) {
             super(builder);
             this.xmlObject = xmlObject;
             this.read = 0;

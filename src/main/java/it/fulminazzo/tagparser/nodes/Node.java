@@ -24,7 +24,7 @@ import java.util.function.Predicate;
  */
 @Getter
 public class Node implements Attributable<Node>, Serializable {
-    public static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?";
+    public static final String TAG_NAME_REGEX = "[A-Za-z]([A-Za-z0-9_\\-:.]*[A-Za-z0-9])?";
     protected final @NotNull String tagName;
     protected final @NotNull Map<String, String> attributes;
     protected @Nullable Node next;
