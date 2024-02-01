@@ -33,6 +33,28 @@ public class ContainerNode extends Node {
         super(tagName);
     }
 
+    /**
+     * Get a child node from its tag name.
+     *
+     * @param tagName the tag name
+     * @return the node
+     */
+    public @Nullable Node getChild(@NotNull String tagName) {
+        return getChild(c -> c.getTagName().equalsIgnoreCase(tagName));
+    }
+
+    /**
+     * Get a child node using the {@link Predicate} function to validate it.
+     *
+     * @param validator the validator
+     * @return the node
+     */
+    public @Nullable Node getChild(@NotNull Predicate<? super Node> validator) {
+        for (Node c = this.child; c != null; c = c.getNext())
+            if (validator.test(c)) return c;
+        return null;
+    }
+
     @Override
     public @NotNull Set<Node> getNodes(@NotNull Predicate<? super Node> validator) {
         final Set<Node> set = super.getNodes(validator);
