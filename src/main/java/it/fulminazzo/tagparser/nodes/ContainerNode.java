@@ -318,6 +318,12 @@ public class ContainerNode extends Node {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o instanceof Node) return equals((Node) o);
+        return super.equals(o);
+    }
+
+    @Override
     public @NotNull String toString() {
         final StringBuilder builder = new StringBuilder(this.getClass().getSimpleName() + " {");
 
