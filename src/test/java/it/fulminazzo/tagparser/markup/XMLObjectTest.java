@@ -112,7 +112,7 @@ class XMLObjectTest {
 
     @Test
     void testXMLObjectToJSON() {
-        Gson gson = new GsonBuilder().serializeNulls().create();
+        Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
         final String expected = gson.toJson(xmlObject);
         assertEquals(expected, xmlObject.toJSON());
     }

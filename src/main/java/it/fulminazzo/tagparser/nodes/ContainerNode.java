@@ -313,14 +313,8 @@ public class ContainerNode extends Node {
 
     @Override
     public boolean equals(@Nullable Node node) {
-        if (node instanceof ContainerNode) return equals((ContainerNode) node);
+        if (node instanceof ContainerNode && !equals((ContainerNode) node)) return false;
         return super.equals(node);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Node) return equals((Node) o);
-        return super.equals(o);
     }
 
     @Override
