@@ -90,8 +90,7 @@ class XMLObjectTest {
         assertEquals(attributes, xmlObject.getAttributes());
         assertEquals(rootNode, xmlObject.getRootNode());
         assertEquals(FileUtils.readFileToString(file)
-                .replaceAll("<!--[^\n]*-->", "")
-                .replaceAll("\n *", ""), xmlObject.toHTML());
+                .replaceAll("(\n *)?<!--[^\n]*-->", ""), xmlObject.toHTML());
     }
 
     @Test
@@ -125,7 +124,6 @@ class XMLObjectTest {
 
     String fileToString() throws IOException {
         return FileUtils.readFileToString(file)
-                .replaceAll("<!--[^\n]*-->", "")
-                .replaceAll("\n *", "");
+                .replaceAll("<!--[^\n]*-->", "");
     }
 }

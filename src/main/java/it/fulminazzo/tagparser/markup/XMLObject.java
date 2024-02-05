@@ -115,26 +115,6 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
     }
 
     @Override
-    public void write(final @NotNull OutputStream stream) {
-        if (documentType != null)
-            try {
-                stream.write("<?".getBytes());
-                stream.write(documentType.getBytes());
-                final @NotNull Map<String, String> attributes = getAttributes();
-                for (String k : attributes.keySet()) {
-                    final String v = attributes.get(k);
-                    String output = " " + k;
-                    if (v != null) output += String.format("=\"%s\"", v.replace("\"", "\\\""));
-                    stream.write(output.getBytes());
-                }
-                stream.write("?>".getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        INodeObject.super.write(stream);
-    }
-
-    @Override
     public @NotNull String toHTML() {
         final StringBuilder output = new StringBuilder();
         if (this.documentType != null) {
@@ -147,7 +127,10 @@ public class XMLObject implements Serializable, Attributable<XMLObject>, INodeOb
             });
             output.append("?>");
         }
-        if (this.rootNode != null) output.append(rootNode.toHTML());
+        if (this.rootNode != null) {
+            if (this.documentType != null) output.append("\n");
+            output.append(this.rootNode.toHTML());
+        }
         return output.toString();
     }
 
