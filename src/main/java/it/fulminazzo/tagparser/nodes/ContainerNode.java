@@ -21,6 +21,10 @@ import java.util.function.Predicate;
 @SuppressWarnings("UnusedReturnValue")
 @Getter
 public class ContainerNode extends Node {
+    /**
+     * The indentation used when using {@link #toHTML()}.
+     */
+    protected static final String INDENTATION = "    ";
     protected @Nullable Node child;
     protected @Nullable String text;
 
@@ -292,9 +296,11 @@ public class ContainerNode extends Node {
         if (text != null) builder.append(StringUtils.unParseContent(text));
         Node child = this.child;
         while (child != null) {
-            builder.append(child.toHTML());
+            builder.append("\n").append(INDENTATION);
+            builder.append(child.toHTML().replace("\n", "\n" + INDENTATION));
             child = child.getNext();
         }
+        if (this.child != null) builder.append("\n");
         builder.append("</").append(tagName).append(">");
         return builder.toString();
     }

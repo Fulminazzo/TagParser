@@ -24,7 +24,7 @@ class ContainerNodeTest {
 
     @Test
     void testToHTML() {
-        final String expected = "<test><child/></test>";
+        final String expected = "<test>\n    <child/>\n</test>";
         assertEquals(expected, node.toHTML());
     }
 
