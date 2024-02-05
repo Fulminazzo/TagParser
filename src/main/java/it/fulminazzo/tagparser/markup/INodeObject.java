@@ -97,9 +97,11 @@ public interface INodeObject {
         if (root == null) throw new WriteException("Cannot write null root node");
 
         try {
-            stream.write(root.toHTML().getBytes());
+            stream.write(toHTML().getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+    String toHTML();
 }
