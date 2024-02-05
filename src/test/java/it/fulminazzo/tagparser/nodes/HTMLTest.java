@@ -83,10 +83,7 @@ public class HTMLTest {
     @Test
     void testHTMLOutput() throws IOException {
         final String expected = FileUtils.readFileToString(new File(NodeTest.RESOURCES, "index.html"))
-                .replaceAll("\n *", "")
-                .replace("\"stroke", "\" stroke")
-                .replace("\"d", "\" d")
-                .replace("<!-- rx: round corners -->", "");
+                .replaceAll("(\n *)?<!-- rx: round corners -->", "");
         final String html = getSimpleHTML().toHTML();
         assertEquals(expected, html);
     }
@@ -95,10 +92,7 @@ public class HTMLTest {
     void testHTMLFileOutput() throws IOException {
         File file = new File(NodeTest.RESOURCES, "index.html");
         final String expected = FileUtils.readFileToString(file)
-                .replaceAll("\n *", "")
-                .replace("\"stroke", "\" stroke")
-                .replace("\"d", "\" d")
-                .replace("<!-- rx: round corners -->", "");
+                .replaceAll("(\n *)?<!-- rx: round corners -->", "");
         final String html = Node.newNode(file).toHTML();
         assertEquals(expected, html);
     }
