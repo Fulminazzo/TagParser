@@ -100,9 +100,7 @@ class HTMLObjectTest {
 
     String fileToString() throws IOException {
         return FileUtils.readFileToString(file)
-                .replaceAll("\n *", "")
-                .replace("linecap=\"round\" ", "linecap=\"round\"")
-                .replace("<!-- Wave Function Collapse Background -->", "");
+                .replaceAll("(\n *)?<!-- Wave Function Collapse Background -->", "");
     }
 
     @Test

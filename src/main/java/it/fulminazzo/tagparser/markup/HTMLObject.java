@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -145,19 +144,9 @@ public class HTMLObject implements Serializable, INodeObject {
     }
 
     @Override
-    public void write(final @NotNull OutputStream stream) {
-        try {
-            stream.write("<!DOCTYPE html>".getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        INodeObject.super.write(stream);
-    }
-
-    @Override
     public @NotNull String toHTML() {
         final StringBuilder output = new StringBuilder("<!DOCTYPE html>");
-        if (this.rootNode != null) output.append(rootNode.toHTML());
+        if (this.rootNode != null) output.append("\n").append(rootNode.toHTML());
         return output.toString();
     }
 
@@ -195,9 +184,11 @@ public class HTMLObject implements Serializable, INodeObject {
                 String output = child.toHTML();
                 if (child.getClass().equals(Node.class) && !validTags.getOrDefault(child.getTagName(), true))
                     output = output.substring(0, output.length() - 2) + ">";
-                builder.append(output);
+                builder.append("\n").append(ContainerNode.INDENTATION);
+                builder.append(output.replace("\n", "\n" + ContainerNode.INDENTATION));
                 child = child.getNext();
             }
+            if (this.child != null) builder.append("\n");
             builder.append("</").append(tagName).append(">");
             return builder.toString();
         }
