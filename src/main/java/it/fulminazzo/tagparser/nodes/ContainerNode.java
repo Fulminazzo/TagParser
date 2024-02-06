@@ -38,6 +38,16 @@ public class ContainerNode extends Node {
     }
 
     /**
+     * Instantiates a new Container node.
+     *
+     * @param tagName  the tag name
+     * @param tagRegex the tag regex
+     */
+    public ContainerNode(@NotNull String tagName, @NotNull String tagRegex) {
+        super(tagName, tagRegex);
+    }
+
+    /**
      * Get a child node from its tag name.
      *
      * @param tagName the tag name

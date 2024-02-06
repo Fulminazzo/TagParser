@@ -35,7 +35,16 @@ public class Node implements Attributable<Node>, Serializable {
      * @param tagName the tag name
      */
     public Node(@NotNull String tagName) {
-        if (!tagName.matches(TAG_NAME_REGEX))
+        this(tagName, TAG_NAME_REGEX);
+    }
+
+    /**
+     * Instantiates a new Node.
+     *
+     * @param tagName the tag name
+     */
+    public Node(@NotNull String tagName, @NotNull String tagRegex) {
+        if (!tagName.matches(tagRegex))
             throw new NotValidTagNameException(tagName);
         this.tagName = tagName;
         this.attributes = new LinkedHashMap<>();

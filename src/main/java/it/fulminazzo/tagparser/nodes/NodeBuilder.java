@@ -5,6 +5,7 @@ import it.fulminazzo.tagparser.nodes.exceptions.files.FileDoesNotExistException;
 import it.fulminazzo.tagparser.nodes.exceptions.files.FileIsDirectoryException;
 import it.fulminazzo.tagparser.nodes.validators.AttributeValidator;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,6 +66,11 @@ public class NodeBuilder {
      * A regular expression to verify the validity of the contents.
      */
     protected @Nullable String contentsRegex;
+    /**
+     * The regex used when creating nodes.
+     */
+    @Setter
+    protected @NotNull String tagNameRegex = Node.TAG_NAME_REGEX;
 
     protected @Nullable StringBuilder buffer;
     protected InputStream stream;
@@ -475,8 +481,8 @@ public class NodeBuilder {
             else if (!isContainer && !isAllowingClosingTags())
                 throw new ClosingTagsNotAllowedException(tagName);
 
-            if (!isContainer) node = new Node(tagName);
-            else node = new ContainerNode(tagName);
+            if (!isContainer) node = new Node(tagName, tagNameRegex);
+            else node = new ContainerNode(tagName, tagNameRegex);
 
             validateAttributes(attributes);
             node.setAttributes(attributes);
