@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'it.fulminazzo'
-version = '1.2'
+version = '1.2.1'
 
 repositories {
     mavenCentral()
