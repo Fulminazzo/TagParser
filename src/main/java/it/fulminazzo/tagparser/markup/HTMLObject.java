@@ -224,8 +224,9 @@ public class HTMLObject implements Serializable, INodeObject {
         }
 
         @Override
-        protected @NotNull Node createNode() {
+        protected @Nullable Node createNode() {
             Node node = super.createNode();
+            if (node == null) return null;
             if (node instanceof ContainerNode) {
                 ContainerNode n = (ContainerNode) node;
                 HTMLNode tmp = new HTMLNode(n.getTagName(), validTags);

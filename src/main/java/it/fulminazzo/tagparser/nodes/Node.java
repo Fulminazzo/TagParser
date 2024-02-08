@@ -299,31 +299,34 @@ public class Node implements Attributable<Node>, Serializable {
 
     /**
      * Creates a new node from the raw string.
+     * Can only be null on custom-implemented builders.
      *
      * @param string the string
      * @return the node
      */
-    public static @NotNull Node newNode(@NotNull String string) {
+    public static @Nullable Node newNode(@NotNull String string) {
         return new NodeBuilder(string).build();
     }
 
     /**
      * Creates a new node from the given file.
+     * Can only be null on custom-implemented builders.
      *
      * @param file the file
      * @return the node
      */
-    public static @NotNull Node newNode(@NotNull File file) {
+    public static @Nullable Node newNode(@NotNull File file) {
         return new NodeBuilder(file).build();
     }
 
     /**
      * Creates a new node from the raw stream.
+     * Can only be null on custom-implemented builders.
      *
      * @param stream the stream
      * @return the node
      */
-    public static @NotNull Node newNode(@NotNull InputStream stream) {
+    public static @Nullable Node newNode(@NotNull InputStream stream) {
         return new NodeBuilder(stream).build();
     }
 }

@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Create a new node from the given specifications.
@@ -357,11 +358,12 @@ public class NodeBuilder {
      *
      * @return the node
      */
-    public @NotNull Node build() {
+    public @Nullable Node build() {
         try {
             if (stream == null) throw new FromNotSpecified();
             if (buffer == null) buffer = new StringBuilder();
             final Node node = createNode();
+            if (node == null) return null;
             final String tagName = node.getTagName();
 
             if (node instanceof ContainerNode) {
@@ -377,7 +379,7 @@ public class NodeBuilder {
                                 .setBuffer(new StringBuilder("<").append((char) r))
                                 .uncheckNext()
                                 .build();
-                        containerNode.addChild(n);
+                        if (n != null) containerNode.addChild(n);
                     } else buffer.append((char) r);
                 });
 
@@ -413,14 +415,14 @@ public class NodeBuilder {
      *
      * @return the node
      */
-    protected @NotNull Node createNode() {
+    protected @Nullable Node createNode() {
         try {
             if (stream == null) throw new FromNotSpecified();
             if (buffer == null) buffer = new StringBuilder();
             final Map<String, String> attributes = new LinkedHashMap<>();
 
             // Read tag name from given stream.
-            int read = read(0, r -> buffer.indexOf("<") == -1 || (r != ' ' && r != '>'), (b, r) -> {
+            int read = read(0, r -> buffer.indexOf("<") == -1 || (!isWhiteSpace(r) && r != '>'), (b, r) -> {
                 if (r.toString().matches("[\t\n\r]")) return;
                 if (r == '<' && buffer.toString().contains("<")) throw new NotValidTagNameException(buffer.toString());
                 buffer.append(r);
@@ -438,7 +440,7 @@ public class NodeBuilder {
             }
             buffer.setLength(0);
 
-            if (read == ' ') {
+            if (isWhiteSpace(read)) {
                 String name = "";
                 int openQuotes = -1;
                 // Read attributes from given stream.
@@ -452,7 +454,7 @@ public class NodeBuilder {
                                 name = buffer.toString();
                                 buffer.setLength(0);
                                 continue;
-                            } else if (read == ' ' || read == '>') {
+                            } else if (isWhiteSpace(read) || read == '>') {
                                 String value = buffer.toString();
                                 if (value.endsWith("/") || value.endsWith("?")) value = value.substring(0, value.length() - 1);
                                 if (name.isEmpty()) name = value;
@@ -535,5 +537,10 @@ public class NodeBuilder {
      */
     public @NotNull NodeBuilder cloneBuilder() {
         return new NodeBuilder(this);
+    }
+
+    private boolean isWhiteSpace(final int read) {
+        final String WHITE_SPACES = "[\t\r\n ]";
+        return Pattern.compile(WHITE_SPACES).matcher((char) read + "").matches();
     }
 }
